@@ -242,23 +242,76 @@
     return node;
   }
 
-  // ---------- agenda helpers (shared by /agenda and /pulso) ----------
-  // Swap a talk with its parallel alternative. The alternative only carries id/title/room,
-  // so it inherits the slot's times and the reason it was picked; the old talk becomes the alternative.
-  function swapTalk(talk) {
-    var alt = talk.parallel_alternative;
-    if (!alt) return talk;
+  // ---------- agenda helpers (shared by /schedule and /live) ----------
+  // Parallel talks that also match the person's interests. Newer backends send `parallel_matches`
+  // (always an array); older ones and the sample agenda may only send `parallel_alternative`.
+  function hasMatches(talk) { return !!talk && Array.isArray(talk.parallel_matches); }
+  function parallelOptions(talk) {
+    if (!talk) return [];
+    if (hasMatches(talk)) return talk.parallel_matches.filter(function (m) { return m && m.id; });
+    return talk.parallel_alternative ? [talk.parallel_alternative] : [];
+  }
+
+  function asOption(talk) {
     return {
-      id: alt.id, title: alt.title, room: alt.room,
-      speakers: alt.speakers || [], start: talk.start, end: talk.end,
-      topics: alt.topics || talk.topics, match_reason: alt.match_reason || talk.match_reason,
-      forecast: alt.forecast || null,
-      parallel_alternative: {
-        id: talk.id, title: talk.title, room: talk.room, speakers: talk.speakers,
-        topics: talk.topics, match_reason: talk.match_reason, forecast: talk.forecast
-      },
-      swapped: !talk.swapped
+      id: talk.id, title: talk.title, speakers: talk.speakers || [], start: talk.start, end: talk.end,
+      room: talk.room, topics: talk.topics || [], match_reason: talk.match_reason || [], forecast: talk.forecast || null
     };
+  }
+
+  // Put the parallel talk `id` in the slot. The previous pick becomes the first parallel option, so the
+  // person can switch back. Options that only carry id/title/room (old `parallel_alternative`) inherit the
+  // slot's times and the reason it was picked.
+  function pickParallel(talk, id) {
+    var opts = parallelOptions(talk);
+    var chosen = opts.filter(function (o) { return o.id === id; })[0];
+    // parallel_alternative may be a parallel talk that matches no interest (then it isn't in parallel_matches).
+    if (!chosen && talk && talk.parallel_alternative && talk.parallel_alternative.id === id) chosen = talk.parallel_alternative;
+    if (!chosen) return talk;
+    var prev = asOption(talk);
+    var originalId = talk.original_id || talk.id;
+    var next = {
+      id: chosen.id, title: chosen.title, room: chosen.room,
+      speakers: chosen.speakers || [], start: chosen.start || talk.start, end: chosen.end || talk.end,
+      topics: chosen.topics || talk.topics, match_reason: chosen.match_reason || talk.match_reason,
+      forecast: chosen.forecast || null,
+      parallel_alternative: prev,
+      original_id: originalId,
+      swapped: chosen.id !== originalId
+    };
+    if (hasMatches(talk)) {
+      next.parallel_matches = [prev].concat(opts.filter(function (o) { return o.id !== id; }));
+    }
+    return next;
+  }
+
+  // Legacy: swap with `parallel_alternative`.
+  function swapTalk(talk) {
+    var alt = talk && talk.parallel_alternative;
+    return alt ? pickParallel(talk, alt.id) : talk;
+  }
+
+  // Options of a slot (recommended first, then its parallel matches) ranked by live occupancy.
+  // occOf(roomId) returns 0..1 or null. Rooms without live data keep their order, after the known ones.
+  // Returns { options: [{ talk, occ, recommended }], leastId } where leastId is the least crowded known room's talk.
+  function rankByOccupancy(talk, occOf) {
+    var rec = { talk: talk, occ: talk.room ? occOf(talk.room.id) : null, recommended: true, i: 0 };
+    var others = parallelOptions(talk).map(function (o, i) {
+      return { talk: o, occ: o.room ? occOf(o.room.id) : null, recommended: false, i: i + 1 };
+    });
+    others.sort(function (a, b) {
+      if (a.occ == null && b.occ == null) return a.i - b.i;
+      if (a.occ == null) return 1;
+      if (b.occ == null) return -1;
+      return a.occ - b.occ || a.i - b.i;
+    });
+    var least = null;
+    [rec].concat(others).forEach(function (o) {
+      if (o.occ != null && (least == null || o.occ < least.occ)) least = o;
+    });
+    // Only worth a label when there is something to compare.
+    var known = [rec].concat(others).filter(function (o) { return o.occ != null; }).length;
+    return { options: [rec].concat(others), leastId: least && known > 1 ? least.talk.id : null };
   }
   function shortRoom(name) { return String(name || '').replace(/^Grand Ballroom\s+/i, ''); }
   function getAgenda() { return load(KEYS.agenda); }
@@ -330,7 +383,8 @@
     level: level, pct: pct, occPill: occPill, forecastPill: forecastPill, SYMBOLS: SYMBOLS,
     time: time, day: day,
     topicIcon: topicIcon, joinTags: joinTags, el: el,
-    swapTalk: swapTalk, shortRoom: shortRoom, getAgenda: getAgenda, saveAgenda: saveAgenda,
+    swapTalk: swapTalk, pickParallel: pickParallel, parallelOptions: parallelOptions, hasMatches: hasMatches,
+    rankByOccupancy: rankByOccupancy, shortRoom: shortRoom, getAgenda: getAgenda, saveAgenda: saveAgenda,
     fetchJSON: fetchJSON, load: load, save: save,
     getProfile: getProfile, saveProfile: saveProfile, defaultProfile: defaultProfile,
     isDemo: isDemo, withDemo: withDemo,

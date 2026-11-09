@@ -101,6 +101,27 @@ fieldset { margin: 0; min-width: 0; }
 .talk__why { color: var(--link); }
 .talk__status { justify-self: end; }
 .slot--break { padding: 4px 16px; color: var(--muted); font-size: .95rem; }
+.talk__status { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+
+/* Parallel talks that also match the person's interests, under the recommended one. */
+.parallel { margin: 8px 0 0 calc(5.6em + 52px + 32px); }
+.parallel__title { font-family: var(--font-body); font-size: .95rem; font-weight: 700; margin: 0 0 8px; color: var(--muted); }
+.parallel__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.parallel-opt {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 14px; align-items: center;
+  background: var(--surface); border: var(--border-width) solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+}
+.parallel-opt__title { font-family: var(--font-body); font-size: .98rem; font-weight: 700; margin: 0 0 2px; }
+.parallel-opt__status { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.parallel-opt__pick { white-space: nowrap; min-height: 44px; }
+.least-badge {
+  font-size: .8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--text); border: var(--border-width) solid var(--border);
+}
+.least-badge--suggested { background: var(--accent-soft); color: var(--accent-soft-text); border-color: transparent; }
+/* With avoid_crowded the least crowded option is the suggested one: thicker, accented border (not only color: it also has the badge). */
+.talk--suggested, .parallel-opt--suggested { border-width: 3px; border-color: var(--focus); }
 .agenda-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
 .summary h2 { font-family: var(--font-body); font-size: 1.15rem; }
 .summary p { color: var(--muted); }
@@ -199,4 +220,8 @@ fieldset { margin: 0; min-width: 0; }
   .talk__time { grid-area: time; }
   .talk__status { grid-area: status; }
   .talk__body { grid-area: body; }
+  .parallel { margin-left: 0; }
+  .parallel-opt { grid-template-columns: minmax(0, 1fr) auto; }
+  .parallel-opt__body { grid-column: 1 / -1; }
+  .parallel-opt__status { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
 }
