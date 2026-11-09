@@ -104,7 +104,7 @@ router.get('/search', async (req, res) => {
 
   const topics = rank.topicsIn(q);
   const lexical = `${q} ${rank.expandInterests(topics)}`;
-  const ids = await rankedIds(res, { lexical, semantic: q, topics }, () => rank.localRank(lexical, rank.defaultCatalog, topics));
+  const ids = await rankedIds(res, { lexical, semantic: q, topics }, () => rank.localRank(q, rank.defaultCatalog, topics));
   return res.json({ talks: rank.searchResults(q, ids) });
 });
 

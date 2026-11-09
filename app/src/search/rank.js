@@ -151,14 +151,15 @@ function formatTalk(talk, reason, alternative, catalog) {
 
 // ---------- local ranking (fallback when Elasticsearch is unavailable) ----------
 
-// Ordered talk ids for free text: topic matches weigh most, then word hits in title/abstract/speakers.
+// Ordered talk ids for free text: topic matches weigh most, then word hits (title hits count twice).
 function localRank(text, catalog = defaultCatalog, terms = []) {
   const words = [...new Set(norm(text).split(/[^a-z0-9]+/).filter((w) => w.length >= 3))];
   const scored = catalog.talks.map((talk) => {
     const haystack = norm(`${talk.title} ${talk.abstract} ${talk.speakers.join(' ')} ${talk.topics.join(' ')}`);
     const topicHits = matchReason(talk, terms.length ? terms : [text, ...words]).length;
     const wordHits = words.filter((w) => haystack.includes(w)).length;
-    return { id: talk.id, score: topicHits * 5 + wordHits };
+    const titleHits = words.filter((w) => norm(talk.title).includes(w)).length;
+    return { id: talk.id, score: topicHits * 5 + wordHits + titleHits };
   });
   return scored
     .filter((s) => s.score > 0)
