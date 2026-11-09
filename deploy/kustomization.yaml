@@ -13,4 +13,4 @@ resources:
 images:
   - name: app
     newName: ghcr.io/cifuentescossio/kubepulse
-    newTag: 3a4f03e
+    newTag: 64b787c
