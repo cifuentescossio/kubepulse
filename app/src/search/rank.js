@@ -82,27 +82,47 @@ function validateQuery(q) {
 
 // ---------- shared helpers ----------
 
-// A topic matches an interest when they are equal ignoring case/accents, or one contains the other
-// ("GPUs" matches "Inferencia / GPUs").
-function topicMatches(topic, interest) {
-  const t = norm(topic);
-  const i = norm(interest);
-  return t === i || (i.length >= 3 && (t.includes(i) || i.includes(t)));
-}
+// Whole words (ES and EN) that name each topic. Matching is by complete token, never by substring,
+// so "for" does not hit "platform" and "gen" does not hit "agentes".
+const TOPIC_ALIASES = {
+  Agentes: ['agente', 'agentes', 'agent', 'agents', 'agentic', 'agentico', 'agentica', 'agenticos'],
+  'Platform Engineering': ['platform', 'platforms', 'plataforma', 'plataformas', 'idp', 'idps', 'backstage'],
+  MCP: ['mcp'],
+  Seguridad: ['seguridad', 'security', 'secure', 'securing', 'attack', 'attacks', 'ataque', 'ataques', 'sandbox', 'sandboxes', 'hardening'],
+  Observabilidad: ['observabilidad', 'observability', 'opentelemetry', 'otel', 'tracing', 'traces', 'trazas', 'metrics', 'metricas', 'logs'],
+  eBPF: ['ebpf', 'cilium'],
+  GitOps: ['gitops', 'argo', 'argocd', 'flux'],
+  'Inferencia / GPUs': ['inferencia', 'inference', 'gpu', 'gpus', 'llm', 'llms', 'vllm', 'serving'],
+};
+const STOPWORDS = new Set([
+  'a', 'an', 'and', 'the', 'for', 'of', 'to', 'in', 'on', 'with', 'by', 'at', 'or', 'from',
+  'de', 'del', 'la', 'el', 'los', 'las', 'y', 'o', 'en', 'con', 'para', 'por', 'un', 'una', 'al',
+]);
+// A query word may also be a prefix of an alias ("secur" -> security), only from 4 letters on.
+const MIN_PREFIX = 4;
 
-const matchReason = (talk, interests) => talk.topics.filter((t) => interests.some((i) => topicMatches(t, i)));
+const tokens = (text) => norm(text).split(/[^a-z0-9]+/).filter((w) => w && !STOPWORDS.has(w));
 
-const ALL_TOPICS = [...new Set(talksData.flatMap((t) => t.topics))];
+const ALIAS_INDEX = Object.entries(TOPIC_ALIASES).map(([topic, aliases]) => ({
+  topic,
+  name: norm(topic),
+  aliases: new Set(aliases.map(norm)),
+}));
 
-// Canonical topics mentioned in free text, in Spanish or by an English keyword:
+const tokenNamesTopic = (word, entry) =>
+  entry.aliases.has(word) ||
+  (word.length >= MIN_PREFIX && [...entry.aliases].some((a) => a.length > word.length && a.startsWith(word)));
+
+// Canonical topics mentioned in free text, in Spanish or English:
 // "seguridad de agentes" -> Seguridad, Agentes; "observability" -> Observabilidad.
 function topicsIn(text) {
-  const words = norm(text).split(/[^a-z0-9]+/).filter((w) => w.length >= 3);
-  return ALL_TOPICS.filter((t) => {
-    const aliases = norm(TOPIC_KEYWORDS[norm(t)] || '').split(/\s+/).filter((a) => a.length >= 5);
-    return [text, ...words].some((w) => topicMatches(t, w)) || words.some((w) => aliases.includes(w));
-  });
+  const whole = norm(text);
+  const words = tokens(text);
+  return ALIAS_INDEX.filter((e) => whole === e.name || words.some((w) => tokenNamesTopic(w, e))).map((e) => e.topic);
 }
+
+// Topics of the talk that are in `topics` (canonical names, as returned by topicsIn).
+const matchReason = (talk, topics) => talk.topics.filter((t) => topics.includes(t));
 
 const wantedTopics = (interests) => [...new Set(interests.flatMap((i) => topicsIn(i)))];
 
@@ -154,9 +174,10 @@ function formatTalk(talk, reason, alternative, catalog) {
 // Ordered talk ids for free text: topic matches weigh most, then word hits (title hits count twice).
 function localRank(text, catalog = defaultCatalog, terms = []) {
   const words = [...new Set(norm(text).split(/[^a-z0-9]+/).filter((w) => w.length >= 3))];
+  const topics = terms.length ? terms : topicsIn(text);
   const scored = catalog.talks.map((talk) => {
     const haystack = norm(`${talk.title} ${talk.abstract} ${talk.speakers.join(' ')} ${talk.topics.join(' ')}`);
-    const topicHits = matchReason(talk, terms.length ? terms : [text, ...words]).length;
+    const topicHits = matchReason(talk, topics).length;
     const wordHits = words.filter((w) => haystack.includes(w)).length;
     const titleHits = words.filter((w) => norm(talk.title).includes(w)).length;
     return { id: talk.id, score: topicHits * 5 + wordHits + titleHits };

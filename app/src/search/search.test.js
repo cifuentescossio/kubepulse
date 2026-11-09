@@ -9,6 +9,7 @@ delete process.env.ELASTIC_API_KEY;
 const express = require('express');
 const rank = require('./rank');
 const router = require('./index');
+const { pruneCheck } = require('../../scripts/ingest');
 
 const PROFILE = {
   name: 'Daniel',
@@ -104,6 +105,48 @@ test('topicsIn maps Spanish and English words to topics', () => {
   assert.deepEqual(rank.topicsIn('seguridad de agentes').sort(), ['Agentes', 'Seguridad']);
   assert.deepEqual(rank.topicsIn('observability'), ['Observabilidad']);
   assert.deepEqual(rank.topicsIn('gpus'), ['Inferencia / GPUs']);
+});
+
+test('topicsIn matches whole words, not substrings ("for" is not "platform")', () => {
+  assert.deepEqual(rank.topicsIn('security for agents').sort(), ['Agentes', 'Seguridad']);
+  assert.deepEqual(rank.wantedTopics(['Security for agents']).sort(), ['Agentes', 'Seguridad']);
+  assert.deepEqual(rank.topicsIn('gen'), []);
+  assert.deepEqual(rank.topicsIn('for'), []);
+  assert.deepEqual(rank.topicsIn('agentes'), ['Agentes']);
+  assert.deepEqual(rank.topicsIn('agents'), ['Agentes']);
+  assert.deepEqual(rank.topicsIn('Agéntes'), ['Agentes'], 'accents and case are ignored');
+  assert.deepEqual(rank.topicsIn('secu'), ['Seguridad'], 'prefix of 4+ letters');
+  assert.deepEqual(rank.topicsIn('sec'), [], 'no prefix under 4 letters');
+  assert.deepEqual(rank.topicsIn('Platform Engineering'), ['Platform Engineering']);
+});
+
+test('search "security for agents": match_reason never lists Platform Engineering', () => {
+  const q = 'security for agents';
+  const topics = rank.topicsIn(q);
+  const talks = rank.searchResults(q, rank.localRank(q, rank.defaultCatalog, topics));
+  assert.ok(talks.length > 0);
+  for (const t of talks) {
+    assert.ok(!t.match_reason.includes('Platform Engineering'), `${t.id} lists Platform Engineering`);
+    assert.deepEqual(t.match_reason, t.topics.filter((tp) => ['Agentes', 'Seguridad'].includes(tp)));
+  }
+  assert.ok(talks.some((t) => t.match_reason.includes('Agentes')));
+});
+
+test('recommend "Security for agents": only Seguridad/Agentes talks, with that match_reason', () => {
+  const { talks } = localRecommend({ interests: ['Security for agents'] });
+  assert.ok(talks.length > 0);
+  for (const t of talks) {
+    assert.ok(t.match_reason.length > 0);
+    assert.ok(t.match_reason.every((tp) => ['Agentes', 'Seguridad'].includes(tp)), `${t.id}: ${t.match_reason}`);
+  }
+});
+
+test('ingest prune guard: aborts when the catalog has under 80% of the index', () => {
+  assert.equal(pruneCheck(26, 0).ok, true, 'empty index');
+  assert.equal(pruneCheck(26, 26).ok, true);
+  assert.equal(pruneCheck(8, 10).ok, true, 'exactly 80%');
+  assert.equal(pruneCheck(7, 10).ok, false);
+  assert.match(pruneCheck(0, 26).reason, /not pruning/);
 });
 
 test('HTTP: /recommend and /search answer from the local fallback without credentials', async (t) => {
