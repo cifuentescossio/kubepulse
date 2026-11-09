@@ -12,6 +12,16 @@
 {# Obee speaks here. The region exists empty from the start so screen readers announce changes. #}
 <div class="obee-region" id="obee-region" aria-live="polite" aria-atomic="true"></div>
 
+{% if demo %}
+<section class="chaos" aria-label="Demo">
+  <button type="button" class="btn btn--chaos" id="chaos-btn" aria-describedby="chaos-hint">
+    <span aria-hidden="true">⚡</span> <span data-i18n="pulso.chaos">Botón de caos</span>
+  </button>
+  <p class="small chaos__hint" id="chaos-hint"></p>
+  <p class="small chaos__status" id="chaos-status" role="status"></p>
+</section>
+{% endif %}
+
 <div class="pulso-layout">
   <section class="route" aria-labelledby="route-title">
     <h2 id="route-title" data-i18n="pulso.route">Tu ruta de hoy</h2>

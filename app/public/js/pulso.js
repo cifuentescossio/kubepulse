@@ -203,6 +203,7 @@
     };
     renderBanner();
     renderRoute();
+    renderChaos();
     loadHistory();
     // Focus stays sensible: the button is gone, so move focus to the updated route.
     var h = document.getElementById('route-talk-' + index);
@@ -338,6 +339,7 @@
     appendLivePoint();
     renderChart();
     evaluateBanner();
+    renderChaos();
   }
 
   var pollTimer = null, inFlight = null;
@@ -376,7 +378,7 @@
   }
 
   function rerenderAll() {
-    renderTags(); renderRoute(); renderRooms(); renderFreshness(); renderBanner(); renderChart();
+    renderTags(); renderRoute(); renderRooms(); renderFreshness(); renderBanner(); renderChart(); renderChaos();
   }
 
   document.addEventListener('kp:lang', function () {
@@ -392,11 +394,37 @@
   setInterval(renderFreshness, 1000);
   setInterval(loadHistory, HISTORY_MS);
 
-  // Exposed for the demo chaos button (added in pulso view when ?demo=1).
-  window.KPPulse = {
-    poll: poll, loadHistory: loadHistory,
-    nextRoom: function () { var tk = talks()[nextIndex()]; return tk && tk.room ? tk.room : null; }
-  };
+  // ---------- demo: chaos button (rendered only with ?demo=1) ----------
+  var chaosBtn = $('chaos-btn'), chaosHint = $('chaos-hint'), chaosStatus = $('chaos-status');
+  var chaosMsg = null; // { key, vars } so it survives a language switch
+
+  function nextRoom() { var tk = talks()[nextIndex()]; return tk && tk.room ? tk.room : null; }
+
+  function renderChaos() {
+    if (!chaosBtn) return;
+    var room = nextRoom();
+    chaosHint.textContent = room ? t('pulso.chaos.hint', { room: room.name }) : '';
+    chaosStatus.textContent = chaosMsg ? t(chaosMsg.key, chaosMsg.vars) : '';
+  }
+
+  if (chaosBtn) {
+    chaosBtn.addEventListener('click', function () {
+      var room = nextRoom();
+      chaosBtn.disabled = true;
+      KP.fetchJSON('/chaos', { method: 'POST', body: room ? { room: room.id } : {}, timeout: 5000 })
+        .then(function (res) {
+          var name = (state.rooms[res.room] && state.rooms[res.room].name) || (room && room.name) || res.room;
+          chaosMsg = { key: 'pulso.chaos.done', vars: { room: name, time: res.until ? KP.time(res.until) : '' } };
+          KP.track('chaos_triggered', { 'kubepulse.room': res.room || (room && room.id), 'kubepulse.chaos.until': res.until || '' });
+          state.dismissedKey = null;
+          return poll();
+        })
+        .catch(function () { chaosMsg = { key: 'pulso.chaos.fail' }; })
+        .then(function () { renderChaos(); chaosBtn.disabled = false; });
+    });
+  }
+
+  window.KPPulse = { poll: poll, loadHistory: loadHistory, nextRoom: nextRoom };
 
   KP.ready()
     .then(loadAgenda)

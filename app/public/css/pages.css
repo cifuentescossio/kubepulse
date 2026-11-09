@@ -184,3 +184,11 @@ fieldset { margin: 0; min-width: 0; }
 .route-talk--past { background: var(--surface-2); box-shadow: none; }
 .route-talk--past .talk__title, .route-talk--past .talk__time { color: var(--muted); font-weight: 600; }
 .done-label { font-size: .85rem; color: var(--muted); }
+
+/* Demo-only chaos button (?demo=1) */
+.chaos { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 20px; }
+.chaos p { margin: 0; }
+.chaos__hint { color: var(--muted); }
+.chaos__status:empty { display: none; }
+.chaos__status { font-weight: 700; flex-basis: 100%; }
+.btn--chaos { background: var(--high-text); color: var(--surface); border-color: var(--high-text); }

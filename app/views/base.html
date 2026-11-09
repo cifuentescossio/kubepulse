@@ -23,6 +23,29 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
   <link rel="stylesheet" href="/static/css/kubepulse.css?v={{ v }}">
   <link rel="icon" href="/static/mascots/obee_full.svg" type="image/svg+xml">
+  {% if rum %}
+  {# Dash0 RUM. Values are injected from the environment at render time (autoescaped attributes), never committed. #}
+  <meta name="kp-rum-endpoint" content="{{ rum.endpoint }}">
+  <meta name="kp-rum-token" content="{{ rum.token }}">
+  <meta name="kp-rum-service" content="{{ rum.serviceName }}">
+  <meta name="kp-rum-version" content="{{ rum.version }}">
+  <script>
+    (function () {
+      var q = [];
+      window.dash0 = function () { q.push(arguments); };
+      window.dash0._q = q;
+      function meta(n) { var m = document.querySelector('meta[name="' + n + '"]'); return m ? m.content : ''; }
+      window.dash0('init', {
+        serviceName: meta('kp-rum-service'),
+        serviceVersion: meta('kp-rum-version'),
+        endpoint: { url: meta('kp-rum-endpoint'), authToken: meta('kp-rum-token') }
+      });
+    })();
+  </script>
+  <script defer src="https://unpkg.com/@dash0/sdk-web@0.28.1/dist/dash0.iife.js"
+          integrity="sha384-4Qe4h+eqBKwfFnNHgA5jLJR9rgatErHlpz9Y1JZ8PdGuLHi+OWqOLvGC+rt3dPp0"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  {% endif %}
   {% block head %}{% endblock %}
 </head>
 <body data-page="{{ page }}" data-title-key="{{ page }}.title">

@@ -7,6 +7,16 @@ const router = express.Router();
 const appVersion = process.env.APP_VERSION;
 const assetVersion = encodeURIComponent(appVersion && appVersion !== 'dev' ? appVersion : Date.now().toString(36));
 
+// Dash0 RUM settings come from the environment (Secret kubepulse-secrets), never from the repo.
+// DASH0_RUM_TOKEN is a separate ingest-only token: it is public by design once it reaches the browser.
+// When either value is empty the template doesn't load the SDK at all.
+function rumConfig() {
+  const token = (process.env.DASH0_RUM_TOKEN || '').trim();
+  const endpoint = (process.env.DASH0_RUM_ENDPOINT || '').trim();
+  if (!token || !endpoint) return null;
+  return { token, endpoint, serviceName: 'kubepulse-web', version: appVersion || 'dev' };
+}
+
 function render(view, page, step) {
   return (req, res) => {
     res.render(view, {
@@ -14,6 +24,7 @@ function render(view, page, step) {
       step,
       v: assetVersion,
       demo: req.query.demo === '1',
+      rum: rumConfig(),
     });
   };
 }
