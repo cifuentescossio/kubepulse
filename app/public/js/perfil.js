@@ -26,7 +26,7 @@
     F.name.value = p.name || '';
     if (p.role) F.role.value = p.role;
     F.level.value = p.level || 'any';
-    F.lang.value = p.lang === 'en' ? 'en' : (p.lang === 'es' ? 'es' : KP.lang());
+    F.lang.value = p.lang === 'en' ? 'en' : (p.lang === 'es' ? 'es' : KP.contentLang());
     var set = p.interests || [];
     chips.forEach(function (c) { c.checked = set.indexOf(c.value) !== -1; });
     var a = p.a11y || {};
@@ -83,7 +83,7 @@
       'kubepulse.interests.count': profile.interests.length
     });
     formStatus.textContent = KP.t('perfil.saved');
-    location.href = KP.withDemo('/agenda');
+    location.href = KP.withDemo('/schedule');
   });
 
   document.addEventListener('kp:lang', renderStatus);

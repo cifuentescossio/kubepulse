@@ -15,9 +15,9 @@ It turns the schedule into a personal plan and tells you, live, which rooms are 
 
 | Page | What it does |
 |---|---|
-| [`/perfil`](https://kubepulse.cnh.radarhq.io/perfil) | Your profile: name, role, interests, level, language, accessibility needs (captions, wheelchair access, avoid crowded rooms). |
-| [`/agenda`](https://kubepulse.cnh.radarhq.io/agenda) | Recommended talks per time slot, why each one matches, a parallel alternative, and a crowd forecast. |
-| [`/pulso`](https://kubepulse.cnh.radarhq.io/pulso) | Live room occupancy (Hay espacio / Llenándose / Llena) with the last 30 minutes of history. |
+| [`/profile`](https://kubepulse.cnh.radarhq.io/profile) | Your profile: name, role, interests, level, language, accessibility needs (captions, wheelchair access, avoid crowded rooms). |
+| [`/schedule`](https://kubepulse.cnh.radarhq.io/schedule) | Recommended talks per time slot, why each one matches, a parallel alternative, and a crowd forecast. |
+| [`/live`](https://kubepulse.cnh.radarhq.io/live) | Live room occupancy (Room available / Filling up / Full) with the last 30 minutes of history. |
 
 Room occupancy is **simulated**: there are no sensors in the rooms. See [AI usage declaration](#ai-usage-declaration).
 
@@ -32,7 +32,7 @@ folder and exports an `express.Router()`, which `app/server.js` mounts. The API 
 | A · Infra | `app/server.js`, `app/telemetry.js`, `Dockerfile`, `deploy/` | Server, OpenTelemetry SDK, container image, Kubernetes manifests. |
 | B · Data | `app/src/search/`, `app/data/`, `app/scripts/ingest.js` | Talk catalog, `POST /recommend` and `GET /search`. |
 | C · Pulse | `app/src/pulse/` | Occupancy simulator, `GET /pulse`, `GET /pulse/history`, `POST /chaos` (demo only), `room.occupancy` metric. |
-| D · Frontend | `app/views/`, `app/public/`, `app/src/pages/` | `/perfil`, `/agenda`, `/pulso`, themes, i18n (es/en), RUM events. |
+| D · Frontend | `app/views/`, `app/public/`, `app/src/pages/` | `/profile`, `/schedule`, `/live`, themes, i18n (en/zh/hi/es/fr, English default), RUM events. |
 | E · Extras | `app/src/ask/`, `README.md` | `POST /ask`: questions about the schedule answered by an LLM, with a local fallback. |
 
 What each external service does:
@@ -55,7 +55,7 @@ flowchart LR
   svc --> app
 
   subgraph app[KubePulse pod · Node 22 + Express]
-    pages[D · Frontend<br>/perfil /agenda /pulso]
+    pages[D · Frontend<br>/profile /schedule /live]
     search[B · Data<br>/recommend /search]
     pulse[C · Pulse<br>/pulse /chaos]
     ask[E · Extras<br>/ask]

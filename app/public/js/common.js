@@ -3,7 +3,8 @@
   'use strict';
 
   var THEMES = ['kube', 'dark', 'mujeres', 'daltonismo', 'lectura', 'pride'];
-  var LANGS = ['es', 'en'];
+  var LANGS = ['en', 'zh', 'hi', 'es', 'fr'];
+  var LOCALES = { en: 'en-US', zh: 'zh-CN', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR' };
   var KEYS = { theme: 'kubepulse.theme', lang: 'kubepulse.lang', profile: 'kubepulse.profile', agenda: 'kubepulse.agenda' };
   var TZ = 'America/Denver'; // Salt Lake City
 
@@ -31,24 +32,27 @@
   }
 
   // ---------- i18n ----------
-  function lang() { return root.getAttribute('lang') === 'en' ? 'en' : 'es'; }
+  function lang() { var l = root.getAttribute('lang'); return LANGS.indexOf(l) === -1 ? 'en' : l; }
+  // Talks and the API only know es|en; other UI languages ask for English talks.
+  function contentLang() { return lang() === 'es' ? 'es' : 'en'; }
+  function locale() { return LOCALES[lang()] || 'en-US'; }
 
   function loadDict() {
     if (!dictPromise) {
       dictPromise = fetch('/static/i18n.json', { cache: 'no-cache' })
         .then(function (r) { if (!r.ok) throw new Error('i18n ' + r.status); return r.json(); })
         .then(function (d) { dict = d; return d; })
-        .catch(function () { dict = { es: {}, en: {} }; return dict; });
+        .catch(function () { dict = { en: {} }; return dict; });
     }
     return dictPromise;
   }
 
   // t('key', {name: 'Daniel'}) → translated string with {placeholders} filled.
-  // Falls back to Spanish, then to `fallback`, then to the key itself.
+  // Falls back to English, then to `fallback`, then to the key itself.
   function t(key, vars, fallback) {
     var table = (dict && dict[lang()]) || {};
     var s = table[key];
-    if (s == null && dict && dict.es) s = dict.es[key];
+    if (s == null && dict && dict.en) s = dict.en[key];
     if (s == null) s = fallback != null ? fallback : key;
     if (vars) {
       s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
@@ -81,13 +85,11 @@
   }
 
   function setLang(next, opts) {
-    if (LANGS.indexOf(next) === -1) next = 'es';
+    if (LANGS.indexOf(next) === -1) next = 'en';
     var prev = lang();
     root.setAttribute('lang', next);
     saveRaw(KEYS.lang, next);
-    document.querySelectorAll('[data-lang]').forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === next));
-    });
+    document.querySelectorAll('[data-lang-select]').forEach(function (s) { s.value = next; });
     return loadDict().then(function () {
       applyI18n();
       updateThemeLabel();
@@ -159,18 +161,6 @@
     });
   }
 
-  // Follow the OS dark-mode setting live, but only while the user hasn't picked a theme.
-  function watchColorScheme() {
-    if (!window.matchMedia) return;
-    var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    var onChange = function () {
-      if (loadRaw(KEYS.theme)) return;
-      root.setAttribute('data-theme', mq.matches ? 'dark' : 'kube');
-      updateThemeLabel();
-      document.dispatchEvent(new CustomEvent('kp:theme', { detail: { theme: theme() } }));
-    };
-    if (mq.addEventListener) mq.addEventListener('change', onChange);
-  }
 
   // ---------- occupancy ----------
   // < 0.50 low "Hay espacio" · 0.50–0.89 mid "Llenándose" · >= 0.90 high "Llena"
@@ -278,14 +268,14 @@
   function time(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return '';
-    return new Intl.DateTimeFormat(lang() === 'en' ? 'en-US' : 'es-ES', {
+    return new Intl.DateTimeFormat(locale(), {
       hour: 'numeric', minute: '2-digit', timeZone: TZ, hour12: lang() === 'en'
     }).format(d);
   }
   function day(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return '';
-    return new Intl.DateTimeFormat(lang() === 'en' ? 'en-US' : 'es-ES', {
+    return new Intl.DateTimeFormat(locale(), {
       weekday: 'long', day: 'numeric', month: 'short', timeZone: TZ
     }).format(d);
   }
@@ -312,7 +302,7 @@
   function saveProfile(p) { return save(KEYS.profile, p); }
   function defaultProfile() {
     return {
-      name: '', role: 'Platform Engineer', interests: [], level: 'any', lang: lang(),
+      name: '', role: 'Platform Engineer', interests: [], level: 'any', lang: contentLang(),
       a11y: { captions: false, wheelchair: false, avoid_crowded: false }
     };
   }
@@ -326,17 +316,16 @@
 
   // ---------- init ----------
   function init() {
-    document.querySelectorAll('[data-lang]').forEach(function (b) {
-      b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
+    document.querySelectorAll('[data-lang-select]').forEach(function (s) {
+      s.addEventListener('change', function () { setLang(s.value); });
     });
     initThemePicker();
-    watchColorScheme();
     setLang(lang(), { silent: true });
   }
 
   window.KP = {
     KEYS: KEYS, THEMES: THEMES,
-    t: t, tag: tag, lang: lang, setLang: setLang, applyI18n: applyI18n, ready: loadDict,
+    t: t, tag: tag, lang: lang, contentLang: contentLang, setLang: setLang, applyI18n: applyI18n, ready: loadDict,
     theme: theme, setTheme: setTheme,
     level: level, pct: pct, occPill: occPill, forecastPill: forecastPill, SYMBOLS: SYMBOLS,
     time: time, day: day,

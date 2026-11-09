@@ -334,12 +334,8 @@ img { max-width: 100%; }
 .header-chip { border-radius: var(--radius-pill); background: var(--header-ctl-active-bg); color: var(--header-ctl-active-text); border-color: var(--header-ctl-active-bg); cursor: default; }
 a.header-btn { border-radius: var(--radius-pill); }
 
-.lang-switch { display: inline-flex; border: 1.5px solid var(--header-ctl-border); border-radius: var(--radius-control); overflow: hidden; background: var(--header-ctl-bg); }
-.lang-switch__btn {
-  font: inherit; font-weight: 700; font-size: .9rem; min-width: 48px; min-height: 44px;
-  border: 0; background: transparent; color: var(--header-ctl-text); cursor: pointer;
-}
-.lang-switch__btn[aria-pressed="true"] { background: var(--header-ctl-active-bg); color: var(--header-ctl-active-text); }
+.lang-select { display: inline-flex; }
+.lang-select__control { font: inherit; font-weight: 700; min-height: 44px; cursor: pointer; padding-right: .75rem; }
 
 /* Theme picker */
 .theme-picker { position: relative; }
@@ -457,7 +453,7 @@ a.header-btn { border-radius: var(--radius-pill); }
 /* Windows High Contrast / forced colors: keep shapes and state visible without theme colors. */
 @media (forced-colors: active) {
   .occ, .room-card, .tag, .header-chip, .chip, .card, .talk, .obee-banner, .obee-note, .notice { border: 1px solid CanvasText; }
-  .chip:has(input:checked), .lang-switch__btn[aria-pressed="true"], .theme-option:has(input:checked) { outline: 3px solid Highlight; outline-offset: -3px; }
+  .chip:has(input:checked), .theme-option:has(input:checked) { outline: 3px solid Highlight; outline-offset: -3px; }
   .route-talk--full { border: 3px double CanvasText; }
   .swatches i { forced-color-adjust: none; }
 }

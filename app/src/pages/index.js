@@ -1,4 +1,4 @@
-// Owner: D · Frontend. Renders /perfil, /agenda, /pulso from app/views.
+// Owner: D · Frontend. Renders /profile, /schedule, /live from app/views.
 const express = require('express');
 
 const router = express.Router();
@@ -29,9 +29,18 @@ function render(view, page, step) {
   };
 }
 
-router.get('/', (req, res) => res.redirect(req.query.demo === '1' ? '/perfil?demo=1' : '/perfil'));
-router.get('/perfil', render('perfil.html', 'perfil', 1));
-router.get('/agenda', render('agenda.html', 'agenda', 2));
-router.get('/pulso', render('pulso.html', 'pulso', 3));
+// English URLs. The old Spanish ones redirect (301) so shared links keep working.
+function withQuery(req, path) {
+  const i = req.originalUrl.indexOf('?');
+  return i === -1 ? path : path + req.originalUrl.slice(i);
+}
+
+router.get('/', (req, res) => res.redirect(withQuery(req, '/profile')));
+router.get('/profile', render('perfil.html', 'perfil', 1));
+router.get('/schedule', render('agenda.html', 'agenda', 2));
+router.get('/live', render('pulso.html', 'pulso', 3));
+router.get('/perfil', (req, res) => res.redirect(301, withQuery(req, '/profile')));
+router.get('/agenda', (req, res) => res.redirect(301, withQuery(req, '/schedule')));
+router.get('/pulso', (req, res) => res.redirect(301, withQuery(req, '/live')));
 
 module.exports = router;
