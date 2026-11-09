@@ -3,11 +3,16 @@ const express = require('express');
 
 const router = express.Router();
 
+// Cache-busting token for /static assets (served with maxAge 5m): changes on every deploy/restart.
+const appVersion = process.env.APP_VERSION;
+const assetVersion = encodeURIComponent(appVersion && appVersion !== 'dev' ? appVersion : Date.now().toString(36));
+
 function render(view, page, step) {
   return (req, res) => {
     res.render(view, {
       page,
       step,
+      v: assetVersion,
       demo: req.query.demo === '1',
     });
   };

@@ -205,6 +205,75 @@
     return el;
   }
 
+  // ---------- topic icons (neutral line icons; mascots never label talks) ----------
+  var ICONS = {
+    chip: '<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>',
+    shield: '<path d="M12 2.8l7.5 3v5.6c0 4.6-3.2 8.4-7.5 9.8-4.3-1.4-7.5-5.2-7.5-9.8V5.8z"/><path d="M8.8 12.2l2.3 2.3 4.3-4.6"/>',
+    layers: '<path d="M12 3.5l9 4.6-9 4.6-9-4.6z"/><path d="M3 12.3l9 4.6 9-4.6"/><path d="M3 16.4l9 4.6 9-4.6"/>',
+    activity: '<path d="M2.5 12h4l3-7 5 14 3-7h4"/>'
+  };
+  function topicIconKind(topics) {
+    var first = (topics && topics[0]) || '';
+    if ((topics || []).indexOf('Seguridad') !== -1) return { icon: 'shield', tone: 'red' };
+    if (first === 'Platform Engineering' || first === 'GitOps') return { icon: 'layers', tone: 'green' };
+    if (first === 'Observabilidad' || first === 'eBPF') return { icon: 'activity', tone: 'blue' };
+    return { icon: 'chip', tone: 'blue' };
+  }
+  function topicIcon(topics) {
+    var k = topicIconKind(topics);
+    var span = document.createElement('span');
+    span.className = 'topic-icon topic-icon--' + k.tone;
+    span.setAttribute('aria-hidden', 'true');
+    span.innerHTML = '<svg viewBox="0 0 24 24" focusable="false">' + ICONS[k.icon] + '</svg>';
+    return span;
+  }
+
+  // Join tags for display: "MCP + Agentes" or "Agentes, MCP y GitOps".
+  function joinTags(tags, sep) {
+    var labels = (tags || []).map(tag);
+    if (sep === 'plus') return labels.join(t('list.plus'));
+    if (labels.length <= 1) return labels.join('');
+    return labels.slice(0, -1).join(', ') + t('list.and') + labels[labels.length - 1];
+  }
+
+  // Small DOM helper: el('p', {className: 'x', text: 'hi'}, [children])
+  function el(tagName, props, children) {
+    var node = document.createElement(tagName);
+    Object.keys(props || {}).forEach(function (k) {
+      if (k === 'text') node.textContent = props[k];
+      else if (k === 'className') node.className = props[k];
+      else if (k.indexOf('on') === 0 && typeof props[k] === 'function') node.addEventListener(k.slice(2), props[k]);
+      else if (props[k] != null && props[k] !== false) node.setAttribute(k, props[k] === true ? '' : props[k]);
+    });
+    (children || []).forEach(function (c) {
+      if (c == null || c === false) return;
+      node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+
+  // ---------- agenda helpers (shared by /agenda and /pulso) ----------
+  // Swap a talk with its parallel alternative. The alternative only carries id/title/room,
+  // so it inherits the slot's times and the reason it was picked; the old talk becomes the alternative.
+  function swapTalk(talk) {
+    var alt = talk.parallel_alternative;
+    if (!alt) return talk;
+    return {
+      id: alt.id, title: alt.title, room: alt.room,
+      speakers: alt.speakers || [], start: talk.start, end: talk.end,
+      topics: alt.topics || talk.topics, match_reason: alt.match_reason || talk.match_reason,
+      forecast: alt.forecast || null,
+      parallel_alternative: {
+        id: talk.id, title: talk.title, room: talk.room, speakers: talk.speakers,
+        topics: talk.topics, match_reason: talk.match_reason, forecast: talk.forecast
+      },
+      swapped: !talk.swapped
+    };
+  }
+  function shortRoom(name) { return String(name || '').replace(/^Grand Ballroom\s+/i, ''); }
+  function getAgenda() { return load(KEYS.agenda); }
+  function saveAgenda(a) { return save(KEYS.agenda, a); }
+
   // ---------- time ----------
   function time(iso) {
     var d = new Date(iso);
@@ -271,6 +340,8 @@
     theme: theme, setTheme: setTheme,
     level: level, pct: pct, occPill: occPill, forecastPill: forecastPill, SYMBOLS: SYMBOLS,
     time: time, day: day,
+    topicIcon: topicIcon, joinTags: joinTags, el: el,
+    swapTalk: swapTalk, shortRoom: shortRoom, getAgenda: getAgenda, saveAgenda: saveAgenda,
     fetchJSON: fetchJSON, load: load, save: save,
     getProfile: getProfile, saveProfile: saveProfile, defaultProfile: defaultProfile,
     isDemo: isDemo, withDemo: withDemo,

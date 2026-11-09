@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
-  <link rel="stylesheet" href="/static/css/kubepulse.css">
+  <link rel="stylesheet" href="/static/css/kubepulse.css?v={{ v }}">
   <link rel="icon" href="/static/mascots/obee_full.svg" type="image/svg+xml">
   {% block head %}{% endblock %}
 </head>
@@ -83,7 +83,7 @@
     </p>
   </footer>
 
-  <script src="/static/js/common.js"></script>
+  <script src="/static/js/common.js?v={{ v }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

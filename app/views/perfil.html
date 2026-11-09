@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Tu perfil · KubePulse{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ v }}">{% endblock %}
 
 {% block header_extra %}
 <p class="header-step" data-i18n="perfil.step">Paso 1 de 3 · Tu perfil</p>
@@ -82,4 +82,4 @@
 </div>
 {% endblock %}
 
-{% block scripts %}<script src="/static/js/perfil.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/js/perfil.js?v={{ v }}"></script>{% endblock %}
