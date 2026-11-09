@@ -98,7 +98,7 @@
     "agenda.confirm": "Confirmar y ver el pulso →",
     "agenda.edit": "← Editar intereses",
     "agenda.loading": "Armando tu agenda…",
-    "agenda.mock": "Mostrando una agenda de ejemplo: el recomendador no respondió.",
+    "agenda.mock": "Recomendador no disponible: mostrando una agenda de ejemplo.",
     "agenda.empty": "No encontramos charlas con esos intereses. Prueba con otros.",
 
     "pulso.title": "Pulso en vivo",
@@ -235,7 +235,7 @@
     "agenda.confirm": "Confirm and see the pulse →",
     "agenda.edit": "← Edit interests",
     "agenda.loading": "Building your agenda…",
-    "agenda.mock": "Showing a sample agenda: the recommender didn't respond.",
+    "agenda.mock": "Recommender not available: showing a sample agenda.",
     "agenda.empty": "We found no talks for those interests. Try other ones.",
 
     "pulso.title": "Live pulse",
