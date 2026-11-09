@@ -92,10 +92,16 @@
   var TREND = { up: '↑', down: '↓', flat: '→' };
   function renderRooms() {
     roomGrid.textContent = '';
+    var mine = talks()[nextIndex()];
+    var mineRoom = mine && mine.room ? mine.room.id : null;
     ((state.pulse && state.pulse.rooms) || []).forEach(function (r) {
       var lv = KP.level(r.occupancy);
       var trend = TREND[r.trend] ? r.trend : 'flat';
-      roomGrid.appendChild(el('li', { className: 'room-card room-card--' + lv }, [
+      var yours = r.id === mineRoom;
+      roomGrid.appendChild(el('li', { className: 'room-card room-card--' + lv + (yours ? ' room-card--yours' : ''), 'aria-current': yours ? 'true' : null }, [
+        yours ? el('p', { className: 'room-card__yours' }, [
+          el('span', { 'aria-hidden': 'true', text: '★ ' }), t('pulso.yours')
+        ]) : null,
         el('p', { className: 'room-card__name', text: KP.shortRoom(r.name) }),
         el('p', { className: 'room-card__pct', text: KP.pct(r.occupancy) + '%' }),
         el('p', { className: 'room-card__state' }, [
