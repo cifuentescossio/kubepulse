@@ -11,5 +11,5 @@ resources:
   - pdb.yaml
 images:
   - name: app
-    newName: ghcr.io/OWNER/REPO
-    newTag: latest
+    newName: ghcr.io/cifuentescossio/kubepulse
+    newTag: 01665fb

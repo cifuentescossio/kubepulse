@@ -33,6 +33,12 @@ Salas: `ace` Grand Ballroom ACE, `gi` Grand Ballroom GI, `r254` Room 254, `r255e
 
 ## API
 
+### Errores (todas las rutas)
+Cuerpo `{ "error": "<mensaje legible>" }`, con campos extra opcionales.
+`400` entrada inválida (body o query) · `404` ruta inexistente o `/chaos` sin `DEMO_MODE` ·
+`409` conflicto (p. ej. `/chaos` con un caos activo: agrega `room` y `until`) ·
+`502/503` dependencia externa caída solo si no hay fallback (lo normal es responder con fallback).
+
 ### POST /recommend
 Request:
 ```json
