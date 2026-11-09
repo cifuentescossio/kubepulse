@@ -22,9 +22,21 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          # Credentials and endpoints (Elastic, Dash0/OTLP, LLM) live in Secret
+          # kubepulse-secrets, created outside git. Optional, so the pod still
+          # starts (with telemetry and integrations off) before it exists.
+          envFrom:
+            - secretRef:
+                name: kubepulse-secrets
+                optional: true
           env:
             - name: TEAM_NAME
               value: "kubepulse"
+            - name: DEMO_MODE
+              value: "true"
+            # Room occupancy is a live gauge: export metrics every 15s, not every 60s.
+            - name: OTEL_METRIC_EXPORT_INTERVAL
+              value: "15000"
           resources:
             requests:
               cpu: 100m
