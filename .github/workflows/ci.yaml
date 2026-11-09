@@ -1,0 +1,32 @@
+# On every pull request to main: install the app's dependencies and run its tests.
+# Building and deploying stays in deploy.yaml (push to main only).
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install and test
+        working-directory: app
+        run: |
+          npm ci
+          node --test

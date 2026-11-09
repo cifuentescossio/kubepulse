@@ -18,7 +18,8 @@ nunjucks.configure(path.join(__dirname, 'views'), { autoescape: true, express: a
 app.set('view engine', 'html');
 
 app.get(['/healthz', '/readyz'], (_req, res) => res.type('text/plain').send('ok\n'));
-app.get('/version', (_req, res) => res.json({ version }));
+const startedAt = telemetry.formatStartTime();
+app.get('/version', (_req, res) => res.json({ version, started_at: startedAt }));
 
 app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: '5m' }));
 
@@ -29,7 +30,7 @@ app.use(require('./src/ask'));     // E · Extras: /ask
 
 app.use((_req, res) => res.status(404).type('text/plain').send('not found\n'));
 
-const server = app.listen(port, () => console.log(`kubepulse listening on :${port}, version ${version}`));
+const server = app.listen(port, () => console.log(`kubepulse listening on :${port}, version ${version}, started ${startedAt}`));
 
 // Exit cleanly when Kubernetes stops the pod, so rollouts don't drop requests.
 // Flush telemetry (bounded wait) before exiting.

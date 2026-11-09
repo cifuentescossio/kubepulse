@@ -113,4 +113,12 @@ function shutdown(timeoutMs = 5000) {
   ]);
 }
 
-module.exports = { enabled: Boolean(sdk), shutdown };
+// When this process started. Reported by /version and the startup log line.
+const startedAt = new Date();
+
+// Format a start time for /version and logs (docs/contracts.md: ISO 8601 with offset).
+function formatStartTime(date = startedAt) {
+  return date.toISOString();
+}
+
+module.exports = { enabled: Boolean(sdk), shutdown, startedAt, formatStartTime };
