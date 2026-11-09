@@ -118,7 +118,19 @@ const startedAt = new Date();
 
 // Format a start time for /version and logs (docs/contracts.md: ISO 8601 with offset).
 function formatStartTime(date = startedAt) {
-  return date.toISOString();
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Denver',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+    timeZoneName: 'longOffset',
+  }).formatToParts(date).map(({ type, value }) => [type, value]));
+  const offset = parts.timeZoneName === 'GMT' ? '+00:00' : parts.timeZoneName.replace(/^GMT/, '');
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}${offset}`;
 }
 
 module.exports = { enabled: Boolean(sdk), shutdown, startedAt, formatStartTime };
