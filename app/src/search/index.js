@@ -48,6 +48,10 @@ function esFilters(profile) {
 }
 
 // Ordered talk ids from Elasticsearch: RRF over BM25 (keywords + exact topics) and semantic.
+// One query ranks the whole catalog, so /recommend builds parallel_matches for every slot from these
+// same ids (rank.recommend), with no query per slot.
+const CATALOG_SIZE = rank.defaultCatalog.talks.length;
+
 async function hybridIds({ lexical, semantic, topics = [], filter = [] }) {
   const es = getClient();
   if (!es) throw new Error('Elasticsearch not configured');
@@ -59,7 +63,7 @@ async function hybridIds({ lexical, semantic, topics = [], filter = [] }) {
     es.search(
       {
         index: INDEX,
-        size: rank.defaultCatalog.talks.length,
+        size: CATALOG_SIZE,
         _source: false,
         retriever: {
           rrf: {
@@ -67,7 +71,7 @@ async function hybridIds({ lexical, semantic, topics = [], filter = [] }) {
               { standard: { query: { bool: { should, filter, minimum_should_match: 1 } } } },
               { standard: { query: { bool: { must: { semantic: { field: 'semantic', query: semantic } }, filter } } } },
             ],
-            rank_window_size: 50,
+            rank_window_size: Math.max(50, CATALOG_SIZE), // RRF needs size <= rank_window_size
             rank_constant: 20,
           },
         },

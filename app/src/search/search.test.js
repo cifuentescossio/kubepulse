@@ -60,8 +60,11 @@ test('local recommend: one talk per slot, sorted, with contract fields', () => {
   assert.deepEqual([...starts].sort((a, b) => Date.parse(a) - Date.parse(b)), starts);
   for (const t of talks) {
     assert.deepEqual(Object.keys(t), [
-      'id', 'title', 'speakers', 'start', 'end', 'room', 'topics', 'match_reason', 'parallel_alternative', 'forecast',
+      'id', 'title', 'speakers', 'start', 'end', 'room', 'topics', 'match_reason', 'parallel_alternative',
+      'parallel_matches', 'forecast',
     ]);
+    assert.ok(Array.isArray(t.parallel_matches));
+    if (t.parallel_matches.length) assert.equal(t.parallel_alternative.id, t.parallel_matches[0].id);
     assert.match(t.start, /-07:00$/);
     assert.ok(t.match_reason.length > 0);
     assert.ok(['low', 'mid', 'high'].includes(t.forecast));
@@ -92,6 +95,84 @@ test('avoid_crowded prefers a less crowded talk when both match', () => {
   const slot = (r) => r.talks.find((t) => t.start === '2026-11-09T15:55:00-07:00');
   assert.equal(slot(localRecommend(base)).forecast, 'high');
   assert.notEqual(slot(localRecommend({ ...base, a11y: { avoid_crowded: true } })).forecast, 'high');
+});
+
+// ---------- parallel_matches ----------
+
+const MATCH_KEYS = ['id', 'title', 'speakers', 'start', 'end', 'room', 'topics', 'match_reason', 'forecast'];
+const AGENTS_OBS = { interests: ['Agentes', 'Observabilidad'] };
+const slotOf = (result, hhmm) => result.talks.find((t) => t.start === `2026-11-09T${hhmm}:00-07:00`);
+
+// Small synthetic catalog: every talk in English with captions, so the score is just the number of
+// matching topics (no ranked ids are passed) and ties break by id.
+const synthetic = (talks) => {
+  const rooms = [{ id: 'r1', name: 'Room 1', capacity: 100, wheelchair_accessible: true }];
+  return rank.buildCatalog(
+    talks.map(([id, start, end, topics, extra = {}]) => ({
+      id, title: `Talk ${id}`, speakers: ['Speaker'], abstract: '', room_id: 'r1',
+      start: `2026-11-09T${start}:00-07:00`, end: `2026-11-09T${end}:00-07:00`, topics,
+      level: 'intermediate', language: 'en', captions: true, expected_attendance: 10, ...extra,
+    })),
+    rooms,
+  );
+};
+const syntheticRecommend = (body, catalog) => rank.recommend(rank.validateProfile(body).profile, [], catalog);
+
+test('parallel_matches: "Agentes + Observabilidad" lists every matching talk of the slot, by score', () => {
+  const slot = slotOf(localRecommend(AGENTS_OBS), '14:05');
+  assert.equal(slot.id, 't-1405-r255ef');
+  assert.deepEqual(slot.parallel_matches.map((m) => m.id), ['t-1405-ace', 't-1405-r254']);
+  assert.equal(slot.parallel_alternative.id, 't-1405-ace');
+  for (const m of slot.parallel_matches) assert.deepEqual(m.match_reason, ['Agentes']);
+});
+
+test('parallel_matches is [] when no overlapping talk matches an interest', () => {
+  const slot = slotOf(localRecommend(AGENTS_OBS), '10:40');
+  assert.deepEqual(slot.parallel_matches, []);
+  assert.equal(slot.parallel_alternative, null);
+});
+
+test('parallel_matches: partial overlap counts, touching edges and talks recommended elsewhere do not', () => {
+  const catalog = synthetic([
+    ['a-best', '10:00', '10:30', ['Agentes', 'Observabilidad']],
+    ['b-same', '10:00', '10:30', ['Agentes']],
+    ['i-same2', '10:00', '10:30', ['Observabilidad', 'Agentes']],
+    ['g-nomatch', '10:00', '10:30', ['GitOps']],
+    ['h-nocaptions', '10:00', '10:30', ['Agentes', 'Observabilidad'], { captions: false }],
+    ['c-late-best', '10:15', '10:45', ['Agentes', 'Observabilidad', 'MCP']],
+    ['d-late', '10:15', '10:45', ['Observabilidad']],
+    ['f-touch-best', '10:30', '11:00', ['Agentes', 'Observabilidad']],
+    ['e-touch', '10:30', '11:00', ['Agentes']],
+  ]);
+  const result = syntheticRecommend({ ...AGENTS_OBS, a11y: { captions: true } }, catalog);
+  assert.deepEqual(result.talks.map((t) => t.id), ['a-best', 'c-late-best', 'f-touch-best']);
+  const first = result.talks[0];
+  // i-same2 scores 2, then b-same and d-late (1 each, by id). d-late only overlaps from 10:15.
+  assert.deepEqual(first.parallel_matches.map((m) => m.id), ['i-same2', 'b-same', 'd-late']);
+  assert.equal(first.parallel_alternative.id, 'i-same2');
+});
+
+test('parallel_matches is capped at 4 and each entry has the contract shape', () => {
+  const catalog = synthetic([
+    ['m0', '09:00', '09:30', ['Agentes', 'Observabilidad']],
+    ['m1', '09:00', '09:30', ['Agentes']],
+    ['m2', '09:00', '09:25', ['Observabilidad', 'Agentes']],
+    ['m3', '09:00', '09:30', ['Observabilidad']],
+    ['m4', '09:00', '09:30', ['Agentes']],
+    ['m5', '09:00', '09:30', ['Agentes']],
+    ['m6', '09:00', '09:30', ['Agentes']],
+  ]);
+  const [slot] = syntheticRecommend(AGENTS_OBS, catalog).talks;
+  assert.equal(slot.id, 'm0');
+  assert.deepEqual(slot.parallel_matches.map((m) => m.id), ['m2', 'm1', 'm3', 'm4']);
+  for (const m of slot.parallel_matches) {
+    assert.deepEqual(Object.keys(m), MATCH_KEYS);
+    assert.match(m.start, /-07:00$/);
+    assert.match(m.end, /-07:00$/);
+    assert.deepEqual(m.room, { id: 'r1', name: 'Room 1' });
+    assert.ok(m.match_reason.length > 0);
+    assert.ok(['low', 'mid', 'high'].includes(m.forecast));
+  }
 });
 
 test('forecast follows the occupancy thresholds of the contract', () => {
@@ -165,7 +246,9 @@ test('HTTP: /recommend and /search answer from the local fallback without creden
   assert.equal(rec.status, 200);
   assert.equal(rec.headers.get('x-kubepulse-source'), 'local');
   assert.equal(rec.headers.get('x-kubepulse-degraded'), 'true');
-  assert.ok((await rec.json()).talks.length > 0);
+  const recBody = await rec.json();
+  assert.ok(recBody.talks.length > 0);
+  assert.ok(recBody.talks.every((t) => Array.isArray(t.parallel_matches)));
 
   const bad = await fetch(`${base}/recommend`, {
     method: 'POST',
