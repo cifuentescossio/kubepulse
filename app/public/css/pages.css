@@ -1,0 +1,66 @@
+/* KubePulse · page layouts. Colors only through theme variables (kubepulse.css). */
+
+/* ---------- /perfil ---------- */
+.perfil-layout {
+  display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 32px;
+  max-width: 1040px; margin: 8px auto 0; align-items: start;
+}
+.welcome { text-align: center; }
+.welcome__mascot {
+  width: 160px; height: 160px; margin: 0 auto 16px; border-radius: 50%;
+  background: var(--banner-bg); display: flex; align-items: center; justify-content: center;
+}
+.welcome__mascot { overflow: hidden; }
+.welcome__mascot img { height: 132px; width: auto; }
+.welcome h1 { font-size: 1.6rem; }
+.welcome__intro { color: var(--muted); }
+.welcome__privacy { color: var(--muted); margin-bottom: 0; }
+
+.profile-form { display: flex; flex-direction: column; gap: 22px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label, .chips-field legend { font-weight: 700; font-size: .92rem; }
+.field input, .field select {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: var(--border-width) solid var(--btn2-border); border-radius: var(--radius-control);
+  min-height: 46px; padding: 8px 14px; width: 100%;
+}
+.field select { appearance: auto; }
+.field input::placeholder { color: var(--muted); opacity: 1; }
+
+fieldset { margin: 0; min-width: 0; }
+.chips-field { border: 0; padding: 0; }
+.chips-field legend { padding: 0; margin-bottom: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  position: relative; display: inline-flex; align-items: center; gap: 4px;
+  min-height: 44px; padding: 8px 16px; border-radius: var(--radius-pill);
+  border: 1.5px solid var(--btn2-border); background: var(--surface); color: var(--text);
+  font-weight: 600; cursor: pointer; user-select: none;
+}
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip__check { display: none; }
+.chip:has(input:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.chip:has(input:checked) .chip__check { display: inline; }
+.chip:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.chips-field[aria-invalid="true"] .chip { border-color: var(--full-border); }
+.field-status { margin: 10px 0 0; color: var(--muted); }
+.field-status--error { color: var(--high-text); font-weight: 700; }
+
+.a11y-box {
+  border: var(--border-width) solid var(--border); border-radius: var(--radius-control);
+  padding: 8px 20px 12px;
+}
+.a11y-box legend { font-weight: 700; padding: 0 6px; }
+.check { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.check input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 767px) {
+  .perfil-layout { grid-template-columns: 1fr; gap: 20px; }
+  .welcome__mascot { width: 120px; height: 120px; }
+  .welcome__mascot img { height: 98px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-actions .btn { flex: 1 1 auto; }
+}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Tu perfil · KubePulse{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css">{% endblock %}
+
+{% block header_extra %}
+<p class="header-step" data-i18n="perfil.step">Paso 1 de 3 · Tu perfil</p>
+{% endblock %}
+
+{% block content %}
+{% set interests = ['Agentes', 'Platform Engineering', 'MCP', 'Seguridad', 'Observabilidad', 'eBPF', 'GitOps', 'Inferencia / GPUs'] %}
+{% set roles = ['Platform Engineer', 'SRE / DevOps', 'Developer', 'Security', 'Estudiante'] %}
+<div class="perfil-layout">
+  <section class="card welcome" aria-labelledby="welcome-title">
+    <div class="welcome__mascot">
+      <img src="/static/mascots/phippy_full.svg" alt="Phippy, la jirafa, te da la bienvenida" data-i18n-attr="alt:perfil.phippy" width="130" height="150">
+    </div>
+    <h1 id="welcome-title" data-i18n="perfil.hello">¡Hola! Cuéntanos de ti</h1>
+    <p class="welcome__intro" data-i18n="perfil.intro">Con esto armamos tu agenda de KubeCon y te avisamos cuando una sala se llena.</p>
+    <p class="welcome__privacy small" data-i18n="perfil.privacy">No rastreamos tu ubicación. Tu perfil se queda en tu navegador.</p>
+  </section>
+
+  <form class="card profile-form" id="profile-form" novalidate aria-labelledby="welcome-title">
+    <div class="form-grid">
+      <div class="field">
+        <label for="name" data-i18n="perfil.name">¿Cómo te llamas?</label>
+        <input id="name" name="name" type="text" autocomplete="given-name" maxlength="60"
+               placeholder="Tu nombre" data-i18n-attr="placeholder:perfil.name.placeholder">
+      </div>
+      <div class="field">
+        <label for="role" data-i18n="perfil.role">Tu rol</label>
+        <select id="role" name="role">
+          {% for r in roles %}<option value="{{ r }}" data-i18n="perfil.role.{{ r }}">{{ r }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="chips-field" aria-describedby="interests-status">
+      <legend data-i18n="perfil.interests">¿Qué te gusta? Elige 2 a 5</legend>
+      <div class="chips">
+        {% for i in interests %}
+        <label class="chip">
+          <input type="checkbox" name="interests" value="{{ i }}">
+          <span class="chip__check" aria-hidden="true">✓</span>
+          <span data-i18n="tag.{{ i }}">{{ i }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <p class="field-status small" id="interests-status" aria-live="polite"></p>
+    </fieldset>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="level" data-i18n="perfil.level">Nivel</label>
+        <select id="level" name="level">
+          <option value="any" data-i18n="perfil.level.any">Cualquier nivel</option>
+          <option value="beginner" data-i18n="perfil.level.beginner">Principiante</option>
+          <option value="advanced" data-i18n="perfil.level.advanced">Avanzado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="talk-lang" data-i18n="perfil.lang">Idioma preferido</label>
+        <select id="talk-lang" name="lang">
+          <option value="es" lang="es">Español</option>
+          <option value="en" lang="en">English</option>
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="a11y-box">
+      <legend data-i18n="perfil.a11y">Accesibilidad</legend>
+      <label class="check"><input type="checkbox" name="captions"> <span data-i18n="perfil.a11y.captions">Prefiero charlas con subtítulos en vivo</span></label>
+      <label class="check"><input type="checkbox" name="wheelchair"> <span data-i18n="perfil.a11y.wheelchair">Necesito salas accesibles en silla de ruedas</span></label>
+      <label class="check"><input type="checkbox" name="avoid_crowded"> <span data-i18n="perfil.a11y.avoid">Evitar salas muy llenas (sensibilidad sensorial)</span></label>
+    </fieldset>
+
+    <div class="form-actions">
+      <a class="btn btn--secondary" href="/agenda{% if demo %}?demo=1{% endif %}" id="skip" data-i18n="perfil.skip">Saltar</a>
+      <button type="submit" class="btn btn--primary" data-i18n="perfil.submit">Armar mi agenda →</button>
+    </div>
+    <p class="visually-hidden" role="status" id="form-status"></p>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="/static/js/perfil.js"></script>{% endblock %}
