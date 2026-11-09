@@ -453,3 +453,11 @@ a.header-btn { border-radius: var(--radius-pill); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Windows High Contrast / forced colors: keep shapes and state visible without theme colors. */
+@media (forced-colors: active) {
+  .occ, .room-card, .tag, .header-chip, .chip, .card, .talk, .obee-banner, .obee-note, .notice { border: 1px solid CanvasText; }
+  .chip:has(input:checked), .lang-switch__btn[aria-pressed="true"], .theme-option:has(input:checked) { outline: 3px solid Highlight; outline-offset: -3px; }
+  .route-talk--full { border: 3px double CanvasText; }
+  .swatches i { forced-color-adjust: none; }
+}

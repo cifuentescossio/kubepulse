@@ -110,12 +110,7 @@ fieldset { margin: 0; min-width: 0; }
   .agenda-layout { grid-template-columns: 1fr; }
   .agenda-side { position: static; }
 }
-@media (max-width: 767px) {
-  .talk { grid-template-columns: 52px minmax(0, 1fr); gap: 10px 14px; padding: 14px; }
-  .talk__time { grid-column: 1 / -1; }
-  .talk .topic-icon { width: 44px; height: 44px; }
-  .talk__status { grid-column: 2; justify-self: start; }
-}
+
 
 /* ---------- /pulso ---------- */
 .header-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -176,10 +171,9 @@ fieldset { margin: 0; min-width: 0; }
   .pulso-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
-  .obee-banner { flex-wrap: wrap; }
+  .obee-banner { flex-wrap: wrap; align-items: flex-start; }
   .obee-banner__text { flex-basis: calc(100% - 64px); }
   .obee-banner__actions { width: 100%; justify-content: flex-end; }
-  .route-talk { grid-template-columns: 52px minmax(0, 1fr); }
 }
 .route-talk--past { background: var(--surface-2); box-shadow: none; }
 .route-talk--past .talk__title, .route-talk--past .talk__time { color: var(--muted); font-weight: 600; }
@@ -192,3 +186,17 @@ fieldset { margin: 0; min-width: 0; }
 .chaos__status:empty { display: none; }
 .chaos__status { font-weight: 700; flex-basis: 100%; }
 .btn--chaos { background: var(--high-text); color: var(--surface); border-color: var(--high-text); }
+
+/* Mobile talk cards (agenda + pulso), last so it wins over the desktop grids. */
+@media (max-width: 767px) {
+  /* Top row: icon · time · status; details full width below. */
+  .talk, .route-talk {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-areas: "icon time status" "body body body";
+    gap: 10px 12px; padding: 14px;
+  }
+  .talk .topic-icon { grid-area: icon; width: 44px; height: 44px; }
+  .talk__time { grid-area: time; }
+  .talk__status { grid-area: status; }
+  .talk__body { grid-area: body; }
+}
