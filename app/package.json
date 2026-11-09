@@ -12,6 +12,10 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.83.0",
+    "@opentelemetry/resources": "^3.1.1",
+    "@opentelemetry/sdk-node": "^0.301.1",
     "express": "^4.21.2",
     "nunjucks": "^3.2.4"
   }
