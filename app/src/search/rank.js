@@ -152,8 +152,22 @@ const roomRef = (talk, catalog) => {
   return { id: talk.room_id, name: room ? room.name : talk.room_id };
 };
 
-function formatTalk(talk, reason, alternative, catalog) {
-  return {
+// One entry of parallel_matches: the talk fields of the contract, without nested alternatives.
+const formatMatch = (talk, reason, catalog) => ({
+  id: talk.id,
+  title: talk.title,
+  speakers: talk.speakers,
+  start: talk.start,
+  end: talk.end,
+  room: roomRef(talk, catalog),
+  topics: talk.topics,
+  match_reason: reason,
+  forecast: forecast(talk, catalog),
+});
+
+// `matches` is only passed by /recommend; /search keeps its current shape.
+function formatTalk(talk, reason, alternative, catalog, matches) {
+  const out = {
     id: talk.id,
     title: talk.title,
     speakers: talk.speakers,
@@ -165,9 +179,14 @@ function formatTalk(talk, reason, alternative, catalog) {
     parallel_alternative: alternative
       ? { id: alternative.id, title: alternative.title, room: roomRef(alternative, catalog) }
       : null,
-    forecast: forecast(talk, catalog),
   };
+  if (matches) out.parallel_matches = matches;
+  out.forecast = forecast(talk, catalog);
+  return out;
 }
+
+// Two talks overlap when each one starts before the other ends (touching edges do not count).
+const overlaps = (a, b) => Date.parse(a.start) < Date.parse(b.end) && Date.parse(b.start) < Date.parse(a.end);
 
 // ---------- local ranking (fallback when Elasticsearch is unavailable) ----------
 
@@ -193,6 +212,7 @@ function localRank(text, catalog = defaultCatalog, terms = []) {
 // When no interest names a known topic (free text like "kubernetes cost"), the top-ranked talks
 // count as relevant. Otherwise only talks sharing a topic with the interests do.
 const TOP_K_RELEVANT = 8;
+const MAX_PARALLEL_MATCHES = 4;
 
 function recommend(profile, rankedIds, catalog = defaultCatalog) {
   const position = new Map(rankedIds.map((id, i) => [id, i]));
@@ -220,13 +240,22 @@ function recommend(profile, rankedIds, catalog = defaultCatalog) {
     slots.get(c.talk.start).push(c);
   }
 
-  const talks = [...slots.entries()]
+  const byScore = (a, b) => b.score - a.score || a.talk.id.localeCompare(b.talk.id);
+  const picks = [...slots.entries()]
     .sort(([a], [b]) => Date.parse(a) - Date.parse(b))
-    .map(([, list]) => {
-      list.sort((a, b) => b.score - a.score || a.talk.id.localeCompare(b.talk.id));
-      const [best, alt] = list;
-      return formatTalk(best.talk, best.reason, alt ? alt.talk : null, catalog);
-    });
+    .map(([, list]) => list.sort(byScore));
+  const recommendedIds = new Set(picks.map(([best]) => best.talk.id));
+  // Pool for parallel_matches: eligible talks that share at least one interest topic.
+  const matching = candidates.filter((c) => c.reason.length > 0).sort(byScore);
+
+  const talks = picks.map(([best, alt]) => {
+    const matches = matching
+      .filter((c) => !recommendedIds.has(c.talk.id) && overlaps(c.talk, best.talk))
+      .slice(0, MAX_PARALLEL_MATCHES)
+      .map((c) => formatMatch(c.talk, c.reason, catalog));
+    const alternative = matches.length ? catalog.talksById.get(matches[0].id) : alt ? alt.talk : null;
+    return formatTalk(best.talk, best.reason, alternative, catalog, matches);
+  });
 
   return { talks, breaks: BREAKS };
 }
