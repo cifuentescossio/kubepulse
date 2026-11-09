@@ -11,6 +11,18 @@ It turns the schedule into a personal plan and tells you, live, which rooms are 
 | [`/schedule`](https://kubepulse.cnh.radarhq.io/schedule) | Recommended talks per time slot, why each one matches, a parallel alternative, and a crowd forecast. |
 | [`/live`](https://kubepulse.cnh.radarhq.io/live) | Live room occupancy (Room available / Filling up / Full) with the last 30 minutes of history. |
 
+![/profile form: name, role, 2 to 5 interests, level, language and accessibility options](docs/screenshots/app-profile.png)
+
+*`/profile`: interests, level, language and accessibility needs, stored only in the browser.*
+
+![/schedule: recommended talk per slot with its reason, other matching talks and occupancy pills](docs/screenshots/app-schedule.png)
+
+*`/schedule`: one talk per slot, why it matches, and the other talks that also match.*
+
+![/live: today's route with the next talk, and the room pulse with occupancy per room and ACE's last 30 minutes](docs/screenshots/app-live.png)
+
+*`/live`: the route with the next talk, and occupancy per room. Captured without a saved profile, so the route is the sample agenda.*
+
 Room occupancy is **simulated**: there are no sensors in the rooms. See [AI usage declaration](#ai-usage-declaration).
 
 ## Architecture
@@ -109,8 +121,17 @@ What we used:
 
 Evidence:
 
-<!-- screenshot: Radar Checks for team-kubepulse, Before (4 Medium) and After (0) -->
-<!-- screenshot: Radar diagnose / AI SRE investigation on argocd/argocd-repo-server -->
+Checks before and after commit `0795b53`: `team-kubepulse` went from 4 Medium findings to 0; cluster-wide, 14 → 12
+checks, 44 → 40 actionable resources and 369/416 → 374/417 passing.
+
+![Radar Checks for the kubepulse cluster: 12 checks, 40 actionable, 378 of 421 passing, with the namespace filter open](docs/screenshots/radar-checks-after.png)
+
+*Checks after the fix: `team-kubepulse` has no open findings, so the namespace filter lists only the pre-installed platform namespaces.*
+
+![Radar timeline filtered to repo-server: problem events on the argocd Application and on argocd-repo-server between 12:43 PM and 6:07 PM](docs/screenshots/radar-repo-server-crashloop.png)
+
+*The platform's Argo CD repo-server crash loop as Radar's timeline shows it across the afternoon.*
+
 <!-- screenshot: Argo CD Application app Synced/Healthy in Radar -->
 
 ### Dash0
@@ -140,8 +161,13 @@ Evidence:
 
 *Agent0 created and enabled the check rule and saved the dashboard from one chat.*
 
-<!-- screenshot: Dash0 dashboard "KubePulse" with occupancy per room -->
-<!-- screenshot: Dash0 traces for POST /recommend -->
+![Dash0 dashboard "KubePulse": panel "Room occupancy by room" with one line per room and a dashed 90% line](docs/screenshots/dash0-dashboard.png)
+
+*Room occupancy per room; Grand Ballroom GI jumps above 90% when `/chaos` runs.*
+
+![Dash0 service overview for kubepulse: 107 requests, 0.93% errors, 69.9 ms average, and the dependency map to Elastic](docs/screenshots/dash0-service.png)
+
+*The `kubepulse` service in Dash0, built from the app's traces, including its outgoing calls to Elastic.*
 
 ### Elastic
 
@@ -164,6 +190,11 @@ Evidence:
 ![/schedule with "Also matches your interests" under each slot and occupancy pills per talk](docs/screenshots/app-schedule.png)
 
 *Captured without a saved profile, so the page shows the sample agenda; the layout is the same with Elastic results.*
+
+![Elastic Discover with 26 results: talk documents with abstract, captions, level, room_id and the semantic field](docs/screenshots/elastic-discover.png)
+
+*The 26 talk documents in Elastic, each with its `semantic` field.*
+
 <!-- screenshot: response headers X-KubePulse-Source: elastic -->
 
 ### Gitar
@@ -192,6 +223,7 @@ Evidence:
 ![PR #7 timeline: "gitar auto-apply:on", Gitar's review on app/telemetry.js, its fix commit 5848b27 and the approval](docs/screenshots/gitar-auto-apply.png)
 
 *Gitar pushed `5848b27` on its own after `gitar auto-apply:on` and then approved the PR.*
+
 ![Gitar review on PR #5 flagging substring topic matching in app/src/search/rank.js](docs/screenshots/gitar-review.png)
 
 *Gitar's bug finding on PR #5, resolved by the whole-word matching commit `78b34ac`.*
