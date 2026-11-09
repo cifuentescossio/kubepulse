@@ -38,8 +38,9 @@ Critical 0 · High 0 · Medium 4 · Low 0.
 - **13:47-07:00** PR #8 de C unido: pulso determinista (misma ocupación en todos los pods) y caos compartido entre réplicas por el Service headless `app-peers`. Gitar pidió cambios en la ronda 1 (cualquiera podía falsear el header de reenvío; ventanas sin tope) y aprobó en la ronda 2.
 - **13:48-07:00** PR #9 de E unido: `POST /ask` con OpenAI/Elastic y fallback local, README y declaración de uso de IA. En vivo: `/version` = `75983f6`, arrancado a las 13:54:02-07:00.
 - **14:00-07:00** PR #5 de B unido: búsqueda híbrida RRF en Elastic con fallback local. Gitar encontró un falso match por substring en los temas (`sec`/`gen` coincidían con palabras que no tocaban); se arregló con match por palabra completa (`78b34ac`). Build `40c8fc9` ok.
-- **14:01-07:00** PR #6 de D unido: frontend /perfil, /agenda, /pulso. Gitar encontró que los eventos RUM a Dash0 llevaban rol, intereses y datos de accesibilidad; ahora `profile_saved` solo manda un conteo (`df48d0e`). Build `aad9ff6` ok.
+- **14:01-07:00** PR #6 de D unido: frontend /profile, /schedule, /live (entonces /perfil, /agenda, /pulso). Gitar encontró que los eventos RUM a Dash0 llevaban rol, intereses y datos de accesibilidad; ahora `profile_saved` solo manda un conteo (`df48d0e`). Build `aad9ff6` ok.
 - **14:18-07:00** `/version` sigue en `75983f6`: los builds de B y D están listos y falta el sync de Argo CD.
+- **14:38-07:00** PR #10 unido y build `f285332` (commit `deploy: f285332`): inglés por defecto, 5 idiomas (en, zh, hi, es, fr), tema Kube por defecto y URLs en inglés (`/profile`, `/schedule`, `/live`; las viejas redirigen con 301). Como el `argocd-repo-server` seguía inestable, se desplegó cambiando la imagen cuando git ya coincidía con esa versión.
 
 ## After
 
