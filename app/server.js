@@ -1,7 +1,7 @@
 // KubePulse server. Each module under src/ exports an express.Router(),
 // so agents working in parallel only touch their own folder.
 // Telemetry must load before anything else so auto-instrumentation can patch modules.
-require('./telemetry');
+const telemetry = require('./telemetry');
 
 const path = require('node:path');
 const express = require('express');
@@ -18,7 +18,8 @@ nunjucks.configure(path.join(__dirname, 'views'), { autoescape: true, express: a
 app.set('view engine', 'html');
 
 app.get(['/healthz', '/readyz'], (_req, res) => res.type('text/plain').send('ok\n'));
-app.get('/version', (_req, res) => res.json({ version }));
+const startedAt = telemetry.formatStartTime();
+app.get('/version', (_req, res) => res.json({ version, started_at: startedAt }));
 
 app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: '5m' }));
 
@@ -29,7 +30,8 @@ app.use(require('./src/ask'));     // E · Extras: /ask
 
 app.use((_req, res) => res.status(404).type('text/plain').send('not found\n'));
 
-const server = app.listen(port, () => console.log(`kubepulse listening on :${port}, version ${version}`));
+const server = app.listen(port, () => console.log(`kubepulse listening on :${port}, version ${version}, started ${startedAt}`));
 
 // Exit cleanly when Kubernetes stops the pod, so rollouts don't drop requests.
-process.on('SIGTERM', () => server.close(() => process.exit(0)));
+// Flush telemetry (bounded wait) before exiting.
+process.on('SIGTERM', () => server.close(() => telemetry.shutdown().finally(() => process.exit(0))));

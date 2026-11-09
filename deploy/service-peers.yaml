@@ -1,0 +1,18 @@
+# Headless Service so each pod can find its peers by DNS (A record per ready pod).
+# app/src/pulse/peers.js resolves app-peers.team-kubepulse.svc.cluster.local to
+# forward POST /chaos to the other replicas. Same selector as service.yaml.
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-peers
+  labels:
+    app: app
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: false
+  selector:
+    app: app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

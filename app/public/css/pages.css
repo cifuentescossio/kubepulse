@@ -1,0 +1,202 @@
+/* KubePulse · page layouts. Colors only through theme variables (kubepulse.css). */
+
+/* ---------- /perfil ---------- */
+.perfil-layout {
+  display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 32px;
+  max-width: 1040px; margin: 8px auto 0; align-items: start;
+}
+.welcome { text-align: center; }
+.welcome__mascot {
+  width: 160px; height: 160px; margin: 0 auto 16px; border-radius: 50%;
+  background: var(--banner-bg); display: flex; align-items: center; justify-content: center;
+}
+.welcome__mascot { overflow: hidden; }
+.welcome__mascot img { height: 132px; width: auto; }
+.welcome h1 { font-size: 1.6rem; }
+.welcome__intro { color: var(--muted); }
+.welcome__privacy { color: var(--muted); margin-bottom: 0; }
+
+.profile-form { display: flex; flex-direction: column; gap: 22px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label, .chips-field legend { font-weight: 700; font-size: .92rem; }
+.field input, .field select {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: var(--border-width) solid var(--btn2-border); border-radius: var(--radius-control);
+  min-height: 46px; padding: 8px 14px; width: 100%;
+}
+.field select { appearance: auto; }
+.field input::placeholder { color: var(--muted); opacity: 1; }
+
+fieldset { margin: 0; min-width: 0; }
+.chips-field { border: 0; padding: 0; }
+.chips-field legend { padding: 0; margin-bottom: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  position: relative; display: inline-flex; align-items: center; gap: 4px;
+  min-height: 44px; padding: 8px 16px; border-radius: var(--radius-pill);
+  border: 1.5px solid var(--btn2-border); background: var(--surface); color: var(--text);
+  font-weight: 600; cursor: pointer; user-select: none;
+}
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip__check { display: none; }
+.chip:has(input:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.chip:has(input:checked) .chip__check { display: inline; }
+.chip:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.chips-field[aria-invalid="true"] .chip { border-color: var(--full-border); }
+.field-status { margin: 10px 0 0; color: var(--muted); }
+.field-status--error { color: var(--high-text); font-weight: 700; }
+
+.a11y-box {
+  border: var(--border-width) solid var(--border); border-radius: var(--radius-control);
+  padding: 8px 20px 12px;
+}
+.a11y-box legend { font-weight: 700; padding: 0 6px; }
+.check { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.check input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 767px) {
+  .perfil-layout { grid-template-columns: 1fr; gap: 20px; }
+  .welcome__mascot { width: 120px; height: 120px; }
+  .welcome__mascot img { height: 98px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-actions .btn { flex: 1 1 auto; }
+}
+
+/* ---------- shared bits ---------- */
+.notice {
+  margin: 0 0 16px; padding: 10px 14px; border-radius: var(--radius-control);
+  background: var(--surface-2); color: var(--text); border: var(--border-width) solid var(--border);
+}
+.notice[hidden] { display: none; }
+.tag-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-list[hidden] { display: none; }
+.tag {
+  background: var(--accent-soft); color: var(--accent-soft-text); font-weight: 600; font-size: .88rem;
+  padding: 4px 12px; border-radius: var(--radius-pill);
+}
+.link-btn {
+  font: inherit; color: var(--link); background: none; border: 0; padding: 0; margin: 0;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; text-align: left;
+}
+/* Inline link-buttons keep the text flow but get a ≥44px tall hit area. */
+.talk__parallel .link-btn { display: inline; padding: 12px 0; margin: -12px 0; line-height: inherit; }
+
+/* ---------- /agenda ---------- */
+.agenda-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+.agenda-subtitle { margin-bottom: 18px; }
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.talk {
+  display: grid; grid-template-columns: 5.6em 52px minmax(0, 1fr) auto; gap: 16px; align-items: center;
+  background: var(--surface); border: var(--border-width) solid var(--card-accent-border);
+  border-radius: var(--radius); padding: 18px 16px; box-shadow: var(--shadow);
+}
+.talk__time { margin: 0; font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
+.talk__title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; margin: 0 0 2px; }
+.talk__title:focus { outline: none; }
+.talk__title:focus-visible { outline: 3px solid var(--focus); }
+.talk__meta, .talk__why, .talk__parallel { margin: 0; font-size: .9rem; color: var(--muted); }
+.talk__why { color: var(--link); }
+.talk__status { justify-self: end; }
+.slot--break { padding: 4px 16px; color: var(--muted); font-size: .95rem; }
+.agenda-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+.summary h2 { font-family: var(--font-body); font-size: 1.15rem; }
+.summary p { color: var(--muted); }
+.summary p:last-child { margin-bottom: 0; }
+
+@media (max-width: 1023px) {
+  .agenda-layout { grid-template-columns: 1fr; }
+  .agenda-side { position: static; }
+}
+
+
+/* ---------- /pulso ---------- */
+.header-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.header-tags[hidden] { display: none; }
+.header-tags .header-chip { min-height: 36px; padding: 6px 14px; }
+
+.obee-region:empty { display: none; }
+.obee-region { margin-bottom: 22px; }
+.obee-banner {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--banner-bg); color: var(--banner-text);
+  border: var(--border-width) solid var(--banner-border); border-radius: var(--radius); padding: 14px 18px;
+}
+.obee-banner img { width: 48px; height: 48px; flex: none; }
+.obee-banner__text { margin: 0; flex: 1; }
+.obee-banner__actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.icon-btn {
+  font: inherit; font-size: 1.4rem; line-height: 1; width: 44px; height: 44px;
+  border-radius: var(--radius-control); border: var(--border-width) solid transparent;
+  background: transparent; color: var(--banner-text); cursor: pointer;
+}
+.icon-btn:hover { border-color: var(--banner-border); }
+
+.pulso-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr); gap: 24px; align-items: start; }
+.route h2, .rooms-panel h2 { font-family: var(--font-body); font-size: 1.2rem; }
+.route-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.route-talk { grid-template-columns: 5.6em 52px minmax(0, 1fr) auto; }
+.route-talk--full { border: 2px solid var(--full-border); }
+.next-badge {
+  display: inline-block; margin: 0 0 4px; font-size: .75rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--accent-soft-text); background: var(--accent-soft);
+  padding: 2px 8px; border-radius: var(--radius-pill);
+}
+
+.rooms-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rooms-panel__head h2 { margin: 0; }
+.rooms-panel__keddy { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); padding: 4px; }
+.freshness { color: var(--muted); margin: 6px 0 12px; }
+.freshness--stale { color: var(--mid-text); background: var(--mid-bg); padding: 4px 10px; border-radius: 8px; font-weight: 600; }
+.room-grid { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.room-card { border-radius: var(--radius-control); padding: 12px 14px; }
+:root[data-theme="mujeres"] .room-card, :root[data-theme="pride"] .room-card { border-radius: 16px; }
+.room-card p { margin: 0; }
+.room-card--low { background-color: var(--low-bg); color: var(--low-text); }
+.room-card--mid { background-color: var(--mid-bg); color: var(--mid-text); }
+.room-card--high { background-color: var(--high-bg); background-image: var(--high-bg-image); color: var(--high-text); }
+.room-card__name { font-size: .85rem; font-weight: 600; }
+.room-card__pct { font-family: var(--font-title); font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.room-card__state { font-weight: 700; font-size: .9rem; }
+.room-card__trend { font-size: .82rem; }
+
+.chart { margin: 0 0 8px; }
+.chart__title { font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+.chart__box { position: relative; height: 180px; }
+.sim-note { margin: 8px 0 0; }
+
+@media (max-width: 1023px) {
+  .pulso-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .obee-banner { flex-wrap: wrap; align-items: flex-start; }
+  .obee-banner__text { flex-basis: calc(100% - 64px); }
+  .obee-banner__actions { width: 100%; justify-content: flex-end; }
+}
+.route-talk--past { background: var(--surface-2); box-shadow: none; }
+.route-talk--past .talk__title, .route-talk--past .talk__time { color: var(--muted); font-weight: 600; }
+.done-label { font-size: .85rem; color: var(--muted); }
+
+/* Demo-only chaos button (?demo=1) */
+.chaos { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 20px; }
+.chaos p { margin: 0; }
+.chaos__hint { color: var(--muted); }
+.chaos__status:empty { display: none; }
+.chaos__status { font-weight: 700; flex-basis: 100%; }
+.btn--chaos { background: var(--high-text); color: var(--surface); border-color: var(--high-text); }
+
+/* Mobile talk cards (agenda + pulso), last so it wins over the desktop grids. */
+@media (max-width: 767px) {
+  /* Top row: icon · time · status; details full width below. */
+  .talk, .route-talk {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-areas: "icon time status" "body body body";
+    gap: 10px 12px; padding: 14px;
+  }
+  .talk .topic-icon { grid-area: icon; width: 44px; height: 44px; }
+  .talk__time { grid-area: time; }
+  .talk__status { grid-area: status; }
+  .talk__body { grid-area: body; }
+}

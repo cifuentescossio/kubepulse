@@ -7,8 +7,10 @@ namespace: team-kubepulse
 resources:
   - deployment.yaml
   - service.yaml
+  - service-peers.yaml
   - httproute.yaml
+  - pdb.yaml
 images:
   - name: app
     newName: ghcr.io/cifuentescossio/kubepulse
-    newTag: 01665fb
+    newTag: aad9ff6
