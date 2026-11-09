@@ -3,7 +3,6 @@
     "a11y.skip": "Skip to content",
     "lang.group": "Language",
     "footer.mascots": "Phippy & Friends characters",
-
     "theme.button": "Theme",
     "theme.choose": "Choose a theme",
     "theme.note": "Saved in your browser. Works with any language.",
@@ -19,7 +18,6 @@
     "theme.short.daltonismo": "Color-blind",
     "theme.short.lectura": "Reading",
     "theme.short.pride": "Pride",
-
     "occ.low": "Room available",
     "occ.mid": "Filling up",
     "occ.high": "Full",
@@ -29,7 +27,6 @@
     "trend.up": "rising",
     "trend.down": "falling",
     "trend.flat": "steady",
-
     "tag.Agentes": "Agents",
     "tag.Platform Engineering": "Platform Engineering",
     "tag.MCP": "MCP",
@@ -40,7 +37,6 @@
     "tag.Inferencia / GPUs": "Inference / GPUs",
     "list.and": " and ",
     "list.plus": " + ",
-
     "perfil.title": "Your profile",
     "perfil.step": "Step 1 of 3 · Your profile",
     "perfil.phippy": "Phippy the giraffe welcomes you",
@@ -74,7 +70,6 @@
     "perfil.skip": "Skip",
     "perfil.submit": "Build my agenda →",
     "perfil.saved": "Profile saved. Building your agenda…",
-
     "agenda.title": "Your proposed agenda",
     "agenda.step": "Step 2 of 3 · Your proposed agenda",
     "agenda.heading": "{name}, here is your route for today",
@@ -110,7 +105,6 @@
     "agenda.summary.matches": "{n} slots have other talks that match your interests, with live room occupancy.",
     "agenda.live.least": "{time}: “{title}” in {room} is now the least crowded option, at {pct}%.",
     "agenda.live.full": "{time}: the room for “{title}” is now full, at {pct}%.",
-
     "pulso.title": "Live pulse",
     "pulso.tags": "Your interests",
     "pulso.edit": "Edit profile",
@@ -123,6 +117,7 @@
     "pulso.mock": "Sample data: the live pulse didn't respond.",
     "pulso.loading": "Loading the pulse…",
     "pulso.next": "Next",
+    "pulso.yours": "Your next talk",
     "pulso.done": "Finished",
     "pulso.full": "Room full",
     "pulso.capacity": "Capacity {n}",
@@ -150,7 +145,6 @@
     "a11y.skip": "跳到内容",
     "lang.group": "语言",
     "footer.mascots": "Phippy & Friends 角色",
-
     "theme.button": "主题",
     "theme.choose": "选择主题",
     "theme.note": "保存在你的浏览器中。适用于任何语言。",
@@ -166,7 +160,6 @@
     "theme.short.daltonismo": "色盲",
     "theme.short.lectura": "易读",
     "theme.short.pride": "Pride",
-
     "occ.low": "有空位",
     "occ.mid": "快满了",
     "occ.high": "已满",
@@ -176,7 +169,6 @@
     "trend.up": "上升",
     "trend.down": "下降",
     "trend.flat": "平稳",
-
     "tag.Agentes": "智能体",
     "tag.Platform Engineering": "Platform Engineering",
     "tag.MCP": "MCP",
@@ -187,7 +179,6 @@
     "tag.Inferencia / GPUs": "推理 / GPU",
     "list.and": "和",
     "list.plus": " + ",
-
     "perfil.title": "你的资料",
     "perfil.step": "第 1 步，共 3 步 · 你的资料",
     "perfil.phippy": "长颈鹿 Phippy 欢迎你",
@@ -221,7 +212,6 @@
     "perfil.skip": "跳过",
     "perfil.submit": "生成我的日程 →",
     "perfil.saved": "资料已保存。正在生成你的日程…",
-
     "agenda.title": "为你推荐的日程",
     "agenda.step": "第 2 步，共 3 步 · 为你推荐的日程",
     "agenda.heading": "{name}，这是你今天的路线",
@@ -257,7 +247,6 @@
     "agenda.summary.matches": "{n} 个时段还有其他符合你兴趣的演讲，并显示实时会场占用。",
     "agenda.live.least": "{time}：{room} 的“{title}”现在是最不拥挤的选择，占用 {pct}%。",
     "agenda.live.full": "{time}：“{title}”的会场现在已满，占用 {pct}%。",
-
     "pulso.title": "实时脉搏",
     "pulso.tags": "你的兴趣",
     "pulso.edit": "编辑资料",
@@ -270,6 +259,7 @@
     "pulso.mock": "示例数据：实时脉搏没有响应。",
     "pulso.loading": "正在加载脉搏…",
     "pulso.next": "下一场",
+    "pulso.yours": "你的下一场演讲",
     "pulso.done": "已结束",
     "pulso.full": "会场已满",
     "pulso.capacity": "容量 {n}",
@@ -297,7 +287,6 @@
     "a11y.skip": "सामग्री पर जाएँ",
     "lang.group": "भाषा",
     "footer.mascots": "Phippy & Friends के पात्र",
-
     "theme.button": "थीम",
     "theme.choose": "थीम चुनें",
     "theme.note": "आपके ब्राउज़र में सेव होती है। किसी भी भाषा के साथ काम करती है।",
@@ -313,7 +302,6 @@
     "theme.short.daltonismo": "कलर-ब्लाइंड",
     "theme.short.lectura": "पढ़ाई",
     "theme.short.pride": "Pride",
-
     "occ.low": "जगह है",
     "occ.mid": "भर रहा है",
     "occ.high": "भरा हुआ",
@@ -323,7 +311,6 @@
     "trend.up": "बढ़ रहा है",
     "trend.down": "घट रहा है",
     "trend.flat": "स्थिर",
-
     "tag.Agentes": "एजेंट",
     "tag.Platform Engineering": "Platform Engineering",
     "tag.MCP": "MCP",
@@ -334,7 +321,6 @@
     "tag.Inferencia / GPUs": "इन्फ़रेंस / GPU",
     "list.and": " और ",
     "list.plus": " + ",
-
     "perfil.title": "आपकी प्रोफ़ाइल",
     "perfil.step": "चरण 1/3 · आपकी प्रोफ़ाइल",
     "perfil.phippy": "जिराफ़ Phippy आपका स्वागत करती है",
@@ -368,7 +354,6 @@
     "perfil.skip": "छोड़ें",
     "perfil.submit": "मेरा एजेंडा बनाएँ →",
     "perfil.saved": "प्रोफ़ाइल सेव हो गई। आपका एजेंडा बन रहा है…",
-
     "agenda.title": "आपका सुझाया गया एजेंडा",
     "agenda.step": "चरण 2/3 · आपका सुझाया गया एजेंडा",
     "agenda.heading": "{name}, यह रहा आज का आपका रूट",
@@ -404,7 +389,6 @@
     "agenda.summary.matches": "{n} स्लॉट में आपकी रुचियों से मेल खाती दूसरी टॉक भी हैं, कमरे की लाइव भीड़ के साथ।",
     "agenda.live.least": "{time}: {room} में “{title}” अब सबसे कम भीड़ वाला विकल्प है, {pct}% पर।",
     "agenda.live.full": "{time}: “{title}” का कमरा अब भर गया है, {pct}% पर।",
-
     "pulso.title": "लाइव पल्स",
     "pulso.tags": "आपकी रुचियाँ",
     "pulso.edit": "प्रोफ़ाइल बदलें",
@@ -417,6 +401,7 @@
     "pulso.mock": "नमूना डेटा: लाइव पल्स ने जवाब नहीं दिया।",
     "pulso.loading": "पल्स लोड हो रही है…",
     "pulso.next": "अगली",
+    "pulso.yours": "आपकी अगली टॉक",
     "pulso.done": "ख़त्म",
     "pulso.full": "हॉल भरा हुआ",
     "pulso.capacity": "क्षमता {n}",
@@ -444,7 +429,6 @@
     "a11y.skip": "Saltar al contenido",
     "lang.group": "Idioma",
     "footer.mascots": "Personajes de Phippy & Friends",
-
     "theme.button": "Tema",
     "theme.choose": "Elige un tema",
     "theme.note": "Se guarda en tu navegador. Funciona con cualquier idioma.",
@@ -460,7 +444,6 @@
     "theme.short.daltonismo": "Daltonismo",
     "theme.short.lectura": "Lectura",
     "theme.short.pride": "Pride",
-
     "occ.low": "Hay espacio",
     "occ.mid": "Llenándose",
     "occ.high": "Llena",
@@ -470,7 +453,6 @@
     "trend.up": "subiendo",
     "trend.down": "bajando",
     "trend.flat": "estable",
-
     "tag.Agentes": "Agentes",
     "tag.Platform Engineering": "Platform Engineering",
     "tag.MCP": "MCP",
@@ -481,7 +463,6 @@
     "tag.Inferencia / GPUs": "Inferencia / GPUs",
     "list.and": " y ",
     "list.plus": " + ",
-
     "perfil.title": "Tu perfil",
     "perfil.step": "Paso 1 de 3 · Tu perfil",
     "perfil.phippy": "Phippy, la jirafa, te da la bienvenida",
@@ -515,7 +496,6 @@
     "perfil.skip": "Saltar",
     "perfil.submit": "Armar mi agenda →",
     "perfil.saved": "Perfil guardado. Armando tu agenda…",
-
     "agenda.title": "Tu agenda propuesta",
     "agenda.step": "Paso 2 de 3 · Tu agenda propuesta",
     "agenda.heading": "{name}, esta es tu ruta para hoy",
@@ -551,7 +531,6 @@
     "agenda.summary.matches": "{n} franjas tienen otras charlas que coinciden con tus intereses, con la ocupación de cada sala en vivo.",
     "agenda.live.least": "{time}: «{title}» en {room} es ahora la opción menos llena, al {pct}%.",
     "agenda.live.full": "{time}: la sala de «{title}» ahora está llena, al {pct}%.",
-
     "pulso.title": "Pulso en vivo",
     "pulso.tags": "Tus intereses",
     "pulso.edit": "Editar perfil",
@@ -564,6 +543,7 @@
     "pulso.mock": "Datos de ejemplo: el pulso en vivo no respondió.",
     "pulso.loading": "Cargando el pulso…",
     "pulso.next": "Siguiente",
+    "pulso.yours": "Tu próxima charla",
     "pulso.done": "Terminada",
     "pulso.full": "Sala llena",
     "pulso.capacity": "Capacidad {n}",
@@ -591,7 +571,6 @@
     "a11y.skip": "Aller au contenu",
     "lang.group": "Langue",
     "footer.mascots": "Personnages de Phippy & Friends",
-
     "theme.button": "Thème",
     "theme.choose": "Choisissez un thème",
     "theme.note": "Enregistré dans votre navigateur. Fonctionne avec toutes les langues.",
@@ -607,7 +586,6 @@
     "theme.short.daltonismo": "Daltonisme",
     "theme.short.lectura": "Lecture",
     "theme.short.pride": "Pride",
-
     "occ.low": "De la place",
     "occ.mid": "Se remplit",
     "occ.high": "Pleine",
@@ -617,7 +595,6 @@
     "trend.up": "en hausse",
     "trend.down": "en baisse",
     "trend.flat": "stable",
-
     "tag.Agentes": "Agents",
     "tag.Platform Engineering": "Platform Engineering",
     "tag.MCP": "MCP",
@@ -628,7 +605,6 @@
     "tag.Inferencia / GPUs": "Inférence / GPU",
     "list.and": " et ",
     "list.plus": " + ",
-
     "perfil.title": "Votre profil",
     "perfil.step": "Étape 1 sur 3 · Votre profil",
     "perfil.phippy": "Phippy la girafe vous souhaite la bienvenue",
@@ -662,7 +638,6 @@
     "perfil.skip": "Passer",
     "perfil.submit": "Préparer mon programme →",
     "perfil.saved": "Profil enregistré. Préparation de votre programme…",
-
     "agenda.title": "Votre programme proposé",
     "agenda.step": "Étape 2 sur 3 · Votre programme proposé",
     "agenda.heading": "{name}, voici votre parcours du jour",
@@ -698,7 +673,6 @@
     "agenda.summary.matches": "{n} créneaux ont d’autres talks qui correspondent à vos intérêts, avec l’occupation des salles en direct.",
     "agenda.live.least": "{time} : « {title} » dans {room} est maintenant l’option la moins pleine, à {pct} %.",
     "agenda.live.full": "{time} : la salle de « {title} » est maintenant pleine, à {pct} %.",
-
     "pulso.title": "Pouls en direct",
     "pulso.tags": "Vos centres d'intérêt",
     "pulso.edit": "Modifier le profil",
@@ -711,6 +685,7 @@
     "pulso.mock": "Données d'exemple : le pouls en direct n'a pas répondu.",
     "pulso.loading": "Chargement du pouls…",
     "pulso.next": "Suivante",
+    "pulso.yours": "Votre prochaine conférence",
     "pulso.done": "Terminée",
     "pulso.full": "Salle pleine",
     "pulso.capacity": "Capacité {n}",

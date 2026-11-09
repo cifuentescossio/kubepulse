@@ -175,6 +175,8 @@ fieldset { margin: 0; min-width: 0; }
 .room-card { border-radius: var(--radius-control); padding: 12px 14px; }
 :root[data-theme="mujeres"] .room-card, :root[data-theme="pride"] .room-card { border-radius: 16px; }
 .room-card p { margin: 0; }
+.room-card--yours { outline: 3px solid currentColor; outline-offset: 2px; }
+.room-card__yours { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
 .room-card--low { background-color: var(--low-bg); color: var(--low-text); }
 .room-card--mid { background-color: var(--mid-bg); color: var(--mid-text); }
 .room-card--high { background-color: var(--high-bg); background-image: var(--high-bg-image); color: var(--high-text); }
