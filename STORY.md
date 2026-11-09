@@ -26,3 +26,11 @@ Critical 0 · High 0 · Medium 4 · Low 0.
 - **12:05** Push inicial a `main` → build en GHCR → commit `deploy: 01665fb`.
 - **12:25** Argo CD aplicado con el MCP de Radar: Application `app` Synced/Healthy en `a06dc31`, 2/2 pods, `/version` = `01665fb`.
 - **12:30** Gitar instalado; PR #1 (pulso) aprobado por Gitar; PR #2 con reglas del repo en `.gitar/`, unido tras aplicar la sugerencia de Gitar.
+- **12:30** El cluster se desconectó de Radar unos minutos: la UI de Checks avisó "Some audit results are unavailable" en vez de mostrar un falso 0.
+- **12:35** PR #4 (OTel → Dash0 + fix de los 4 Checks), aprobado por Gitar sin hallazgos (reglas 2/2), unido. Build `c1b2dc0`.
+- **12:37** El deploy no avanzaba. Radar mostró la causa: la Application tenía `ComparisonError` ("connection refused" a `argocd-repo-server:8081`) y el repo-server (preinstalado) llevaba 8 reinicios. Cuando volvió a `Running`, sincronizamos con `manage_gitops` y esperamos el rollout con `wait_for`: Synced/Healthy en `3ecbfac`, 2/2 pods con `:c1b2dc0` en dos nodos distintos, `/version` = `c1b2dc0`.
+
+## After (parcial, 12:38)
+
+Radar Checks en `team-kubepulse`: **0 hallazgos** (antes 4 medium). El PDB `app` se creó y los pods
+quedaron repartidos en dos nodos gracias a `topologySpreadConstraints`.
