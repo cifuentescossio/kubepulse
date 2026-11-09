@@ -16,6 +16,24 @@ spec:
       labels:
         app: app
     spec:
+      # The app never calls the Kubernetes API, so don't mount a token.
+      automountServiceAccountToken: false
+      # Spread replicas across nodes when there are several. ScheduleAnyway, not
+      # DoNotSchedule: this cluster has a single node, and the second pod must
+      # still schedule there.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: app
+      volumes:
+        # The root filesystem is read-only; /tmp stays writable for Node or a
+        # library that needs scratch space.
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
       containers:
         - name: app
           image: app
@@ -54,9 +72,13 @@ spec:
               path: /healthz
               port: http
             periodSeconds: 10
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
