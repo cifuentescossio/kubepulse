@@ -435,11 +435,16 @@
     chaosBtn.addEventListener('click', function () {
       var room = nextRoom();
       chaosBtn.disabled = true;
-      KP.fetchJSON('/chaos', { method: 'POST', body: room ? { room: room.id } : {}, timeout: 5000 })
+      // 409 = a chaos is already running (one at a time): show it as active, not as a failure.
+      fetch('/chaos', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(room ? { room: room.id } : {}) })
+        .then(function (r) {
+          if (r.status !== 200 && r.status !== 409) throw new Error('HTTP ' + r.status);
+          return r.json().then(function (res) { res.active = r.status === 409; return res; });
+        })
         .then(function (res) {
           var name = (state.rooms[res.room] && state.rooms[res.room].name) || (room && room.name) || res.room;
           chaosMsg = { key: 'pulso.chaos.done', vars: { room: name, time: res.until ? KP.time(res.until) : '' } };
-          KP.track('chaos_triggered', { 'kubepulse.room': res.room || (room && room.id), 'kubepulse.chaos.until': res.until || '' });
+          if (!res.active) KP.track('chaos_triggered', { 'kubepulse.room': res.room || (room && room.id), 'kubepulse.chaos.until': res.until || '' });
           state.dismissedKey = null;
           return poll();
         })
