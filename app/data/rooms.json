@@ -1,0 +1,6 @@
+[
+  { "id": "ace", "name": "Grand Ballroom ACE", "capacity": 1200, "wheelchair_accessible": true },
+  { "id": "gi", "name": "Grand Ballroom GI", "capacity": 800, "wheelchair_accessible": true },
+  { "id": "r254", "name": "Room 254", "capacity": 300, "wheelchair_accessible": false },
+  { "id": "r255ef", "name": "Room 255 EF", "capacity": 450, "wheelchair_accessible": true }
+]

@@ -12,6 +12,7 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^9.5.1",
     "express": "^4.21.2",
     "nunjucks": "^3.2.4"
   }
