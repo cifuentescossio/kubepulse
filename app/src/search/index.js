@@ -11,6 +11,16 @@ const rank = require('./rank');
 const ES_TIMEOUT_MS = Number(process.env.SEARCH_TIMEOUT_MS) || 1500;
 const router = express.Router();
 
+// During POST /chaos, C · Pulso's middleware adds bounded latency before the handler runs, so it
+// never counts against the Elasticsearch deadline above. No-op until src/pulse exports it.
+let chaosLatency = () => (_req, _res, next) => next();
+try {
+  const pulse = require('../pulse');
+  if (typeof pulse.chaosLatency === 'function') chaosLatency = pulse.chaosLatency;
+} catch {
+  // pulse module missing or failing to load: search keeps working without chaos latency.
+}
+
 // Open the keep-alive connection at startup so the first visitor does not pay for TLS.
 getClient()?.ping({}, { requestTimeout: 10000 }).catch(() => {});
 
@@ -83,7 +93,7 @@ async function rankedIds(res, query, localFallback) {
   }
 }
 
-router.post('/recommend', async (req, res) => {
+router.post('/recommend', chaosLatency(), async (req, res) => {
   const { profile, error } = rank.validateProfile(req.body);
   if (error) return res.status(400).json({ error });
 
@@ -98,7 +108,7 @@ router.post('/recommend', async (req, res) => {
   return res.json(rank.recommend(profile, ids));
 });
 
-router.get('/search', async (req, res) => {
+router.get('/search', chaosLatency(), async (req, res) => {
   const { q, error } = rank.validateQuery(req.query.q);
   if (error) return res.status(400).json({ error });
 
