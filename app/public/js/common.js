@@ -163,12 +163,12 @@
 
 
   // ---------- occupancy ----------
-  // < 0.50 low "Hay espacio" · 0.50–0.89 mid "Llenándose" · >= 0.90 high "Llena"
+  // < 0.50 low "Room available" · 0.50–0.89 mid "Filling up" · >= 0.90 high "Full"
   var SYMBOLS = { low: '●', mid: '▲', high: '■' };
   function level(occ) { return occ >= 0.9 ? 'high' : occ >= 0.5 ? 'mid' : 'low'; }
   function pct(occ) { return Math.round(Math.max(0, Math.min(1, occ)) * 100); }
 
-  // <span class="occ occ--mid"><span aria-hidden>▲</span> Llenándose 71%</span>
+  // <span class="occ occ--mid"><span aria-hidden>▲</span> Filling up 71%</span>
   function occPill(occ, opts) {
     var lv = level(occ);
     var el = document.createElement('span');
@@ -218,7 +218,7 @@
     return span;
   }
 
-  // Join tags for display: "MCP + Agentes" or "Agentes, MCP y GitOps".
+  // Join tags for display: "MCP + Agents" or "Agents, MCP and GitOps".
   function joinTags(tags, sep) {
     var labels = (tags || []).map(tag);
     if (sep === 'plus') return labels.join(t('list.plus'));

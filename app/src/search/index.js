@@ -1,4 +1,4 @@
-// Owner: B · Datos. POST /recommend and GET /search (see docs/contracts.md).
+// Owner: B · Data. POST /recommend and GET /search (see docs/contracts.md).
 // Hybrid search in Elasticsearch (RRF of BM25 + semantic_text). If Elastic is not configured,
 // fails or takes longer than ES_TIMEOUT_MS, it ranks data/talks.json locally and answers anyway.
 // Response headers say which one answered: X-KubePulse-Source (elastic|local), X-KubePulse-Degraded.
@@ -11,7 +11,7 @@ const rank = require('./rank');
 const ES_TIMEOUT_MS = Number(process.env.SEARCH_TIMEOUT_MS) || 1500;
 const router = express.Router();
 
-// During POST /chaos, C · Pulso's middleware adds bounded latency before the handler runs, so it
+// During POST /chaos, C · Pulse's middleware adds bounded latency before the handler runs, so it
 // never counts against the Elasticsearch deadline above. No-op until src/pulse exports it.
 let chaosLatency = () => (_req, _res, next) => next();
 try {

@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Pulso en vivo · KubePulse{% endblock %}
+{% block title %}Live pulse · KubePulse{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ v }}">{% endblock %}
 
 {% block header_extra %}
-<ul class="header-tags" id="header-tags" aria-label="Tus intereses" data-i18n-attr="aria-label:pulso.tags" hidden></ul>
-<a class="header-btn" href="/profile{% if demo %}?demo=1{% endif %}" data-i18n="pulso.edit">Editar perfil</a>
+<ul class="header-tags" id="header-tags" aria-label="Your interests" data-i18n-attr="aria-label:pulso.tags" hidden></ul>
+<a class="header-btn" href="/profile{% if demo %}?demo=1{% endif %}" data-i18n="pulso.edit">Edit profile</a>
 {% endblock %}
 
 {% block content %}
-<h1 class="visually-hidden" data-i18n="pulso.title">Pulso en vivo</h1>
+<h1 class="visually-hidden" data-i18n="pulso.title">Live pulse</h1>
 {# Obee speaks here. The region exists empty from the start so screen readers announce changes. #}
 <div class="obee-region" id="obee-region" aria-live="polite" aria-atomic="true"></div>
 
 {% if demo %}
 <section class="chaos" aria-label="Demo">
   <button type="button" class="btn btn--chaos" id="chaos-btn" aria-describedby="chaos-hint">
-    <span aria-hidden="true">⚡</span> <span data-i18n="pulso.chaos">Botón de caos</span>
+    <span aria-hidden="true">⚡</span> <span data-i18n="pulso.chaos">Chaos button</span>
   </button>
   <p class="small chaos__hint" id="chaos-hint"></p>
   <p class="small chaos__status" id="chaos-status" role="status"></p>
@@ -24,17 +24,17 @@
 
 <div class="pulso-layout">
   <section class="route" aria-labelledby="route-title">
-    <h2 id="route-title" data-i18n="pulso.route">Tu ruta de hoy</h2>
+    <h2 id="route-title" data-i18n="pulso.route">Your route today</h2>
     <p class="notice" id="route-notice" hidden></p>
     <ol class="route-list" id="route-list"></ol>
   </section>
 
   <section class="card rooms-panel" aria-labelledby="rooms-title">
     <div class="rooms-panel__head">
-      <h2 id="rooms-title" data-i18n="pulso.rooms">Pulso de las salas</h2>
-      <img class="rooms-panel__keddy" src="/static/mascots/keddy_full.svg" alt="Keddy vigila las salas" data-i18n-attr="alt:pulso.keddy" width="48" height="48">
+      <h2 id="rooms-title" data-i18n="pulso.rooms">Room pulse</h2>
+      <img class="rooms-panel__keddy" src="/static/mascots/keddy_full.svg" alt="Keddy keeps an eye on the rooms" data-i18n-attr="alt:pulso.keddy" width="48" height="48">
     </div>
-    <p class="freshness small" id="freshness" data-i18n="pulso.loading">Cargando el pulso…</p>
+    <p class="freshness small" id="freshness" data-i18n="pulso.loading">Loading the pulse…</p>
     <ul class="room-grid" id="room-grid"></ul>
 
     <figure class="chart">
@@ -43,7 +43,7 @@
         <canvas id="chart-canvas"></canvas>
       </div>
     </figure>
-    <p class="muted small sim-note" data-i18n="pulso.sim">Datos simulados vía OpenTelemetry · también en Dash0</p>
+    <p class="muted small sim-note" data-i18n="pulso.sim">Simulated data via OpenTelemetry · also in Dash0</p>
   </section>
 </div>
 {% endblock %}

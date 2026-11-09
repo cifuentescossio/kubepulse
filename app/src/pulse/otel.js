@@ -1,4 +1,4 @@
-// Owner: C · Pulso. Observable gauge `room.occupancy` (ratio 0-1), per docs/contracts.md.
+// Owner: C · Pulse. Observable gauge `room.occupancy` (ratio 0-1), per docs/contracts.md.
 // @opentelemetry/api arrives with A · Infra; until then (or if it fails to load) this is a no-op.
 // With the API but no SDK registered, the meter is OTel's own no-op, so nothing is exported.
 

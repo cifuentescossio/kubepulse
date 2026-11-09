@@ -1,43 +1,43 @@
-# KubePulse · Contratos entre piezas
+# KubePulse · Contracts between modules
 
-Este archivo es la fuente de verdad. Solo lo cambia el "cerebro" (sesión principal).
-Si un agente necesita un cambio, lo propone en su PR y no lo aplica por su cuenta.
+This file is the source of truth. Only the coordinator (the main session) changes it.
+If an agent needs a change, it proposes it in its PR and does not apply it on its own.
 
 ## Stack
-- Node 22 + Express 4 + Nunjucks (plantillas con sintaxis Jinja2). Sin build de frontend.
-- Puerto `$PORT` (8080). Mantener `/healthz` y `/readyz`.
-- Todo vive en `app/` (el Dockerfile copia `app/`).
+- Node 22 + Express 4 + Nunjucks (templates with Jinja2 syntax). No frontend build.
+- Port `$PORT` (8080). Keep `/healthz` and `/readyz`.
+- Everything lives in `app/` (the Dockerfile copies `app/`).
 
-## Carpetas y dueños
-| Ruta | Dueño |
+## Folders and owners
+| Path | Owner |
 |---|---|
 | `app/server.js`, `app/telemetry.js`, `app/package.json`, `Dockerfile`, `deploy/` | A · Infra |
-| `app/src/search/`, `app/data/`, `app/scripts/ingest.js` | B · Datos |
-| `app/src/pulse/` | C · Pulso |
+| `app/src/search/`, `app/data/`, `app/scripts/ingest.js` | B · Data |
+| `app/src/pulse/` | C · Pulse |
 | `app/views/`, `app/public/`, `app/src/pages/` | D · Frontend |
 | `app/src/ask/`, `README.md` | E · Extras |
-| `docs/`, `.gitar/` | Cerebro |
+| `docs/`, `.gitar/` | Coordinator |
 
-Cada módulo de `app/src/<x>/index.js` exporta un `express.Router()`. `server.js` ya los monta.
-Las dependencias de npm se agregan solo en `app/package.json` y las aprueba el cerebro (evita conflictos).
+Each module's `app/src/<x>/index.js` exports an `express.Router()`. `server.js` already mounts them.
+npm dependencies are added only in `app/package.json` and the coordinator approves them (avoids conflicts).
 
-## Horas y zonas horarias
-Todas las horas van en ISO 8601 con offset explícito de Salt Lake City: `2026-11-09T09:20:00-07:00`.
-Nunca horas sin zona.
+## Times and time zones
+Every time is ISO 8601 with Salt Lake City's explicit offset: `2026-11-09T09:20:00-07:00`.
+Never a time without a zone.
 
-## Salas (`app/data/rooms.json`)
+## Rooms (`app/data/rooms.json`)
 ```json
 [{ "id": "ace", "name": "Grand Ballroom ACE", "capacity": 1200, "wheelchair_accessible": true }]
 ```
-Salas: `ace` Grand Ballroom ACE, `gi` Grand Ballroom GI, `r254` Room 254, `r255ef` Room 255 EF.
+Rooms: `ace` Grand Ballroom ACE, `gi` Grand Ballroom GI, `r254` Room 254, `r255ef` Room 255 EF.
 
 ## API
 
-### Errores (todas las rutas)
-Cuerpo `{ "error": "<mensaje legible>" }`, con campos extra opcionales.
-`400` entrada inválida (body o query) · `404` ruta inexistente o `/chaos` sin `DEMO_MODE` ·
-`409` conflicto (p. ej. `/chaos` con un caos activo: agrega `room` y `until`) ·
-`502/503` dependencia externa caída solo si no hay fallback (lo normal es responder con fallback).
+### Errors (all routes)
+Body `{ "error": "<readable message>" }`, with optional extra fields.
+`400` invalid input (body or query) · `404` unknown route, or `/chaos` without `DEMO_MODE` ·
+`409` conflict (e.g. `/chaos` while a chaos run is active: adds `room` and `until`) ·
+`502/503` external dependency down, only when there is no fallback (normally the response uses the fallback).
 
 ### POST /recommend
 Request:
@@ -62,52 +62,52 @@ Response:
     "forecast": "low|mid|high" }],
   "breaks": [{ "start": "2026-11-09T10:25:00-07:00", "label": "coffee|lunch" }] }
 ```
-`parallel_alternative` puede ser `null` (se mantiene por compatibilidad: es el primer elemento de `parallel_matches`, o el mejor
-paralelo aunque no coincida si no hay ninguno).
-`parallel_matches`: **todas** las demás charlas que se solapan en horario con la recomendada y coinciden con al menos un interés
-(`match_reason` no vacío), ordenadas por puntaje descendente, máx. 4. Siempre presente (`[]` si no hay). Mismo filtro de perfil que la
-recomendada (nivel, idioma, accesibilidad). La ocupación en vivo de cada sala no viene aquí: el frontend la cruza por `room.id` con `GET /pulse`.
+`parallel_alternative` can be `null` (kept for compatibility: it is the first element of `parallel_matches`, or the best
+parallel talk even without a match when there is none).
+`parallel_matches`: **all** the other talks that overlap in time with the recommended one and match at least one interest
+(non-empty `match_reason`), sorted by descending score, at most 4. Always present (`[]` when there are none). Same profile filter as the
+recommended talk (level, language, accessibility). Each room's live occupancy is not included here: the frontend joins it by `room.id` with `GET /pulse`.
 
-### GET /search?q=texto
-Response: `{ "talks": [ ...mismo formato de charla... ] }`
+### GET /search?q=text
+Response: `{ "talks": [ ...same talk format... ] }`
 
 ### GET /pulse
 ```json
 { "rooms": [{ "id": "ace", "name": "Grand Ballroom ACE", "occupancy": 0.96, "capacity": 1200, "trend": "up|down|flat" }],
   "updated_at": "2026-11-09T15:55:03-07:00" }
 ```
-`occupancy` va de 0 a 1.
+`occupancy` ranges from 0 to 1.
 
 ### GET /pulse/history?room=ace
-`{ "room": "ace", "points": [{ "t": "2026-11-09T15:25:00-07:00", "occupancy": 0.71 }] }` · últimos 30 min.
+`{ "room": "ace", "points": [{ "t": "2026-11-09T15:25:00-07:00", "occupancy": 0.71 }] }` · last 30 min.
 
 ### POST /chaos
-Solo si `DEMO_MODE=true`; si no, 404.
-Request `{ "room": "ace" }` (opcional). Response `{ "room": "ace", "until": "<ISO>" }`.
-Efecto: esa sala sube al ≥96% durante 3 minutos y `/recommend` y `/search` reciben latencia extra.
+Only when `DEMO_MODE=true`; otherwise 404.
+Request `{ "room": "ace" }` (optional). Response `{ "room": "ace", "until": "<ISO>" }`.
+Effect: that room rises to ≥96% for 3 minutes, and `/recommend` and `/search` get extra latency.
 
 ### POST /ask
 Request `{ "question": "...", "profile": { ... } }`.
 Response `{ "answer": "...", "citations": ["t-0920-ace"], "provider": "openai|elastic|none", "degraded": false }`.
 
-## Estados de ocupación
-`< 0.50` → low "Hay espacio" · `0.50–0.89` → mid "Llenándose" · `>= 0.90` → high "Llena".
+## Occupancy states
+`< 0.50` → low "Room available" · `0.50–0.89` → mid "Filling up" · `>= 0.90` → high "Full".
 
 ## Elasticsearch
-Índice `talks`. Campos: `id` keyword, `title` text, `abstract` text, `semantic` semantic_text
-(título + abstract + topics), `speakers` keyword, `room_id` keyword, `start`/`end` date,
+Index `talks`. Fields: `id` keyword, `title` text, `abstract` text, `semantic` semantic_text
+(title + abstract + topics), `speakers` keyword, `room_id` keyword, `start`/`end` date,
 `topics` keyword, `level` keyword, `language` keyword, `captions` boolean.
 
 ## OpenTelemetry
-- Servicio: `service.name=kubepulse`.
-- Métrica: gauge `room.occupancy` (ratio 0-1) con atributos `room.id`, `room.name`, `room.capacity`.
-- Eventos RUM del frontend: `profile_saved`, `agenda_confirmed`, `theme_changed`, `lang_changed`,
+- Service: `service.name=kubepulse`.
+- Metric: gauge `room.occupancy` (ratio 0-1) with attributes `room.id`, `room.name`, `room.capacity`.
+- Frontend RUM events: `profile_saved`, `agenda_confirmed`, `theme_changed`, `lang_changed`,
   `recommendation_switched`, `chaos_triggered`.
 
-## Variables de entorno (Secret de K8s `kubepulse-secrets`, nunca en el repo)
+## Environment variables (K8s Secret `kubepulse-secrets`, never in the repo)
 `ELASTIC_ENDPOINT`, `ELASTIC_API_KEY`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`,
-`OTEL_EXPORTER_OTLP_PROTOCOL`, `DASH0_RUM_TOKEN` (solo ingesta), `DASH0_RUM_ENDPOINT`,
+`OTEL_EXPORTER_OTLP_PROTOCOL`, `DASH0_RUM_TOKEN` (ingest only), `DASH0_RUM_ENDPOINT`,
 `LLM_PROVIDER` (openai|elastic|none), `OPENAI_API_KEY`, `DEMO_MODE`.
 
-## Si falta el backend
-El frontend usa `app/public/mock/agenda.json` y `app/public/mock/pulse.json` con este mismo formato.
+## If the backend is missing
+The frontend uses `app/public/mock/agenda.json` and `app/public/mock/pulse.json` with this same format.

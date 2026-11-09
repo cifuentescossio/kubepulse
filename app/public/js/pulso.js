@@ -1,5 +1,5 @@
-/* /pulso · Paso 3 de 3. Polls GET /pulse every 5 s, charts GET /pulse/history, Obee warns when a room fills.
-   If the backend is slow or down, the last data stays on screen with "hace X s"; with no data at all,
+/* /live · Step 3 of 3. Polls GET /pulse every 5 s, charts GET /pulse/history, Obee warns when a room fills.
+   If the backend is slow or down, the last data stays on screen with "X s ago"; with no data at all,
    /static/mock/pulse.json and /static/mock/pulse-history.json keep the UI alive. */
 (function () {
   'use strict';
