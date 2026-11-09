@@ -1,10 +1,18 @@
 {
-  "name": "cnh-starter",
-  "version": "1.0.0",
+  "name": "kubepulse",
+  "version": "0.1.0",
   "private": true,
-  "description": "Starter app for the Radar AI SRE track at the Cloud Native Hackathon",
+  "description": "KubePulse: conference copilot with live room occupancy (Cloud Native Hackathon, KubeCon NA 2026)",
   "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "nunjucks": "^3.2.4"
   }
 }
