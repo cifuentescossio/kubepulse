@@ -5,16 +5,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: app
-  namespace: team-__TEAM__
+  namespace: team-kubepulse
 spec:
-  project: team-__TEAM__
+  project: team-kubepulse
   source:
-    repoURL: https://github.com/OWNER/REPO.git
+    repoURL: https://github.com/cifuentescossio/kubepulse.git
     targetRevision: main
     path: deploy
   destination:
     server: https://kubernetes.default.svc
-    namespace: team-__TEAM__
+    namespace: team-kubepulse
   syncPolicy:
     automated:
       prune: true
