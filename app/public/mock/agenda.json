@@ -3,78 +3,381 @@
     {
       "id": "t-0920-ace",
       "title": "MCP Without Polling: Building Reactive Agents with Continuous Queries",
-      "speakers": ["Aman Singh"],
+      "speakers": [
+        "Aman Singh"
+      ],
       "start": "2026-11-09T09:20:00-07:00",
       "end": "2026-11-09T09:50:00-07:00",
-      "room": { "id": "ace", "name": "Grand Ballroom ACE" },
-      "topics": ["MCP", "Agentes"],
-      "match_reason": ["MCP", "Agentes"],
-      "parallel_alternative": null,
+      "room": {
+        "id": "ace",
+        "name": "Grand Ballroom ACE"
+      },
+      "topics": [
+        "MCP",
+        "Agentes"
+      ],
+      "match_reason": [
+        "MCP",
+        "Agentes"
+      ],
+      "parallel_alternative": {
+        "id": "t-0920-gi",
+        "title": "Your First MCP Server on Kubernetes in 25 Minutes",
+        "room": {
+          "id": "gi",
+          "name": "Grand Ballroom GI"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-0920-gi",
+          "title": "Your First MCP Server on Kubernetes in 25 Minutes",
+          "speakers": [
+            "Lucía Herrera"
+          ],
+          "start": "2026-11-09T09:20:00-07:00",
+          "end": "2026-11-09T09:45:00-07:00",
+          "room": {
+            "id": "gi",
+            "name": "Grand Ballroom GI"
+          },
+          "topics": [
+            "MCP",
+            "Platform Engineering"
+          ],
+          "match_reason": [
+            "MCP",
+            "Platform Engineering"
+          ],
+          "forecast": "mid"
+        },
+        {
+          "id": "t-0920-r255ef",
+          "title": "eBPF para observar agentes sin tocar su código",
+          "speakers": [
+            "Mateo Galindo"
+          ],
+          "start": "2026-11-09T09:20:00-07:00",
+          "end": "2026-11-09T09:45:00-07:00",
+          "room": {
+            "id": "r255ef",
+            "name": "Room 255 EF"
+          },
+          "topics": [
+            "eBPF",
+            "Observabilidad",
+            "Agentes"
+          ],
+          "match_reason": [
+            "Agentes"
+          ],
+          "forecast": "low"
+        }
+      ],
       "forecast": "low"
     },
     {
       "id": "t-1000-ace",
       "title": "MCP Is the New Internal API Surface",
-      "speakers": ["Baruch Sadogursky"],
+      "speakers": [
+        "Baruch Sadogursky"
+      ],
       "start": "2026-11-09T10:00:00-07:00",
       "end": "2026-11-09T10:25:00-07:00",
-      "room": { "id": "ace", "name": "Grand Ballroom ACE" },
-      "topics": ["MCP", "Platform Engineering"],
-      "match_reason": ["MCP", "Platform Engineering"],
-      "parallel_alternative": null,
+      "room": {
+        "id": "ace",
+        "name": "Grand Ballroom ACE"
+      },
+      "topics": [
+        "MCP",
+        "Platform Engineering"
+      ],
+      "match_reason": [
+        "MCP",
+        "Platform Engineering"
+      ],
+      "parallel_alternative": {
+        "id": "t-1000-r254",
+        "title": "GitOps for Prompts and MCP Tools with Argo CD",
+        "room": {
+          "id": "r254",
+          "name": "Room 254"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-1000-r254",
+          "title": "GitOps for Prompts and MCP Tools with Argo CD",
+          "speakers": [
+            "Priya Natarajan"
+          ],
+          "start": "2026-11-09T10:00:00-07:00",
+          "end": "2026-11-09T10:25:00-07:00",
+          "room": {
+            "id": "r254",
+            "name": "Room 254"
+          },
+          "topics": [
+            "GitOps",
+            "MCP"
+          ],
+          "match_reason": [
+            "MCP"
+          ],
+          "forecast": "mid"
+        }
+      ],
       "forecast": "mid"
     },
     {
       "id": "t-1115-ace",
       "title": "Building Governance for Hybrid Architectures for Agentic Systems",
-      "speakers": ["Valentina Rodriguez Sosa"],
+      "speakers": [
+        "Valentina Rodriguez Sosa"
+      ],
       "start": "2026-11-09T11:15:00-07:00",
       "end": "2026-11-09T11:40:00-07:00",
-      "room": { "id": "ace", "name": "Grand Ballroom ACE" },
-      "topics": ["Platform Engineering", "Agentes"],
-      "match_reason": ["Platform Engineering", "Agentes"],
-      "parallel_alternative": { "id": "t-1115-gi", "title": "Traffic Handling Patterns in the Agentic Era", "room": { "id": "gi", "name": "Grand Ballroom GI" } },
+      "room": {
+        "id": "ace",
+        "name": "Grand Ballroom ACE"
+      },
+      "topics": [
+        "Platform Engineering",
+        "Agentes"
+      ],
+      "match_reason": [
+        "Platform Engineering",
+        "Agentes"
+      ],
+      "parallel_alternative": {
+        "id": "t-1115-gi",
+        "title": "Traffic Handling Patterns in the Agentic Era",
+        "room": {
+          "id": "gi",
+          "name": "Grand Ballroom GI"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-1115-gi",
+          "title": "Traffic Handling Patterns in the Agentic Era",
+          "speakers": [
+            "Pradheep Shrinivasan",
+            "Boteng Yao"
+          ],
+          "start": "2026-11-09T11:15:00-07:00",
+          "end": "2026-11-09T11:40:00-07:00",
+          "room": {
+            "id": "gi",
+            "name": "Grand Ballroom GI"
+          },
+          "topics": [
+            "MCP",
+            "Platform Engineering"
+          ],
+          "match_reason": [
+            "MCP",
+            "Platform Engineering"
+          ],
+          "forecast": "low"
+        }
+      ],
       "forecast": "low"
     },
     {
       "id": "t-1255-gi",
       "title": "The Agent Did What? Reconstructing MCP Tool-Call Attacks",
-      "speakers": ["Jie Wu"],
+      "speakers": [
+        "Jie Wu"
+      ],
       "start": "2026-11-09T12:55:00-07:00",
       "end": "2026-11-09T13:25:00-07:00",
-      "room": { "id": "gi", "name": "Grand Ballroom GI" },
-      "topics": ["Seguridad", "MCP", "Agentes"],
-      "match_reason": ["MCP", "Agentes"],
-      "parallel_alternative": { "id": "t-1255-ace", "title": "Orchestrating/Autoscaling Multi-agent AI Systems", "room": { "id": "ace", "name": "Grand Ballroom ACE" } },
+      "room": {
+        "id": "gi",
+        "name": "Grand Ballroom GI"
+      },
+      "topics": [
+        "Seguridad",
+        "MCP",
+        "Agentes"
+      ],
+      "match_reason": [
+        "MCP",
+        "Agentes"
+      ],
+      "parallel_alternative": {
+        "id": "t-1255-ace",
+        "title": "Orchestrating, Discovering, and Autoscaling Distributed Multi-agent AI Systems Natively in K8s",
+        "room": {
+          "id": "ace",
+          "name": "Grand Ballroom ACE"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-1255-ace",
+          "title": "Orchestrating, Discovering, and Autoscaling Distributed Multi-agent AI Systems Natively in K8s",
+          "speakers": [
+            "Derek Wang"
+          ],
+          "start": "2026-11-09T12:55:00-07:00",
+          "end": "2026-11-09T13:20:00-07:00",
+          "room": {
+            "id": "ace",
+            "name": "Grand Ballroom ACE"
+          },
+          "topics": [
+            "Agentes",
+            "Platform Engineering"
+          ],
+          "match_reason": [
+            "Agentes",
+            "Platform Engineering"
+          ],
+          "forecast": "mid"
+        },
+        {
+          "id": "t-1255-r255ef",
+          "title": "Serving LLMs on Kubernetes: GPU Autoscaling with KEDA and vLLM",
+          "speakers": [
+            "Ingrid Halvorsen"
+          ],
+          "start": "2026-11-09T12:55:00-07:00",
+          "end": "2026-11-09T13:20:00-07:00",
+          "room": {
+            "id": "r255ef",
+            "name": "Room 255 EF"
+          },
+          "topics": [
+            "Inferencia / GPUs",
+            "Platform Engineering"
+          ],
+          "match_reason": [
+            "Platform Engineering"
+          ],
+          "forecast": "low"
+        }
+      ],
       "forecast": "mid"
     },
     {
       "id": "t-1440-ace",
       "title": "What It Took to Write Our Own MCP Gateway",
-      "speakers": ["Vijay Samuel", "Nick Pordash"],
+      "speakers": [
+        "Vijay Samuel",
+        "Nick Pordash"
+      ],
       "start": "2026-11-09T14:40:00-07:00",
       "end": "2026-11-09T15:10:00-07:00",
-      "room": { "id": "ace", "name": "Grand Ballroom ACE" },
-      "topics": ["MCP", "Agentes"],
-      "match_reason": ["MCP"],
-      "parallel_alternative": { "id": "t-1440-gi", "title": "From Alert to Commit: Agentic Incident Resolution", "room": { "id": "gi", "name": "Grand Ballroom GI" } },
+      "room": {
+        "id": "ace",
+        "name": "Grand Ballroom ACE"
+      },
+      "topics": [
+        "MCP",
+        "Agentes"
+      ],
+      "match_reason": [
+        "MCP"
+      ],
+      "parallel_alternative": {
+        "id": "t-1440-gi",
+        "title": "From Alert to Commit: Agentic Incident Resolution",
+        "room": {
+          "id": "gi",
+          "name": "Grand Ballroom GI"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-1440-gi",
+          "title": "From Alert to Commit: Agentic Incident Resolution",
+          "speakers": [
+            "Grant Griffiths"
+          ],
+          "start": "2026-11-09T14:40:00-07:00",
+          "end": "2026-11-09T15:05:00-07:00",
+          "room": {
+            "id": "gi",
+            "name": "Grand Ballroom GI"
+          },
+          "topics": [
+            "Agentes",
+            "Observabilidad",
+            "MCP"
+          ],
+          "match_reason": [
+            "Agentes",
+            "MCP"
+          ],
+          "forecast": "mid"
+        }
+      ],
       "forecast": "low"
     },
     {
       "id": "t-1555-ace",
       "title": "Toward AI-Native Platform Operations: 100+ Microservices",
-      "speakers": ["Kai Levin"],
+      "speakers": [
+        "Kai Levin"
+      ],
       "start": "2026-11-09T15:55:00-07:00",
       "end": "2026-11-09T16:25:00-07:00",
-      "room": { "id": "ace", "name": "Grand Ballroom ACE" },
-      "topics": ["Platform Engineering", "Agentes"],
-      "match_reason": ["Platform Engineering", "Agentes"],
-      "parallel_alternative": { "id": "t-1555-gi", "title": "Agents Need a REPL", "room": { "id": "gi", "name": "Grand Ballroom GI" } },
+      "room": {
+        "id": "ace",
+        "name": "Grand Ballroom ACE"
+      },
+      "topics": [
+        "Platform Engineering",
+        "Agentes"
+      ],
+      "match_reason": [
+        "Platform Engineering",
+        "Agentes"
+      ],
+      "parallel_alternative": {
+        "id": "t-1555-gi",
+        "title": "I Rebuilt Agent Memory Three Times. The Third Time I Treated It Like Data.",
+        "room": {
+          "id": "gi",
+          "name": "Grand Ballroom GI"
+        }
+      },
+      "parallel_matches": [
+        {
+          "id": "t-1555-gi",
+          "title": "I Rebuilt Agent Memory Three Times. The Third Time I Treated It Like Data.",
+          "speakers": [
+            "Artur Ciocanu"
+          ],
+          "start": "2026-11-09T15:55:00-07:00",
+          "end": "2026-11-09T16:20:00-07:00",
+          "room": {
+            "id": "gi",
+            "name": "Grand Ballroom GI"
+          },
+          "topics": [
+            "Agentes",
+            "MCP"
+          ],
+          "match_reason": [
+            "Agentes",
+            "MCP"
+          ],
+          "forecast": "low"
+        }
+      ],
       "forecast": "high"
     }
   ],
   "breaks": [
-    { "start": "2026-11-09T10:25:00-07:00", "label": "coffee" },
-    { "start": "2026-11-09T11:40:00-07:00", "label": "lunch" }
+    {
+      "start": "2026-11-09T10:25:00-07:00",
+      "label": "coffee"
+    },
+    {
+      "start": "2026-11-09T11:40:00-07:00",
+      "label": "lunch"
+    }
   ]
 }

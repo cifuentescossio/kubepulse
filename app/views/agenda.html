@@ -12,6 +12,8 @@
     <h1 id="agenda-title" data-i18n="agenda.heading.anon">Esta es tu ruta para hoy</h1>
     <p class="agenda-subtitle muted" id="agenda-subtitle"></p>
     <p class="notice" id="agenda-notice" role="status"><span data-i18n="agenda.loading">Armando tu agenda…</span></p>
+    {# Announces only relevant occupancy changes (a new least crowded option, a room that just filled up). #}
+    <p class="visually-hidden" id="occ-live" aria-live="polite" aria-atomic="true"></p>
     <h2 class="visually-hidden" data-i18n="agenda.timeline">Charlas propuestas</h2>
     <ol class="timeline" id="timeline"></ol>
   </section>

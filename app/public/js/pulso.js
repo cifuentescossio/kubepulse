@@ -137,16 +137,31 @@
     }
     if (occ < threshold) return;
 
-    var alt = talk.parallel_alternative;
-    var altOcc = alt && alt.room ? occOf(alt.room.id) : null;
-    var useAlt = alt && (altOcc == null || altOcc < threshold);
+    // First choice: a parallel talk that also matches the person's interests, in a room under 90%
+    // (under the stricter threshold with avoid_crowded), the least full first.
+    var limit = Math.min(0.9, threshold);
+    var alt = null, altOcc = null;
+    if (KP.hasMatches(talk)) {
+      KP.parallelOptions(talk).forEach(function (m) {
+        var o = m.room ? occOf(m.room.id) : null;
+        if (o != null && o < limit && (altOcc == null || o < altOcc)) { alt = m; altOcc = o; }
+      });
+    }
+    if (!alt && talk.parallel_alternative) {
+      // Older backends: the single parallel alternative, as before.
+      alt = talk.parallel_alternative;
+      altOcc = alt.room ? occOf(alt.room.id) : null;
+      if (altOcc != null && altOcc >= threshold) { alt = null; altOcc = null; }
+    }
+    var useAlt = !!alt;
     var key = talk.id + '|' + (useAlt ? alt.id : '-');
     if (key === state.dismissedKey) return;
     if (state.banner && state.banner.key === key) return; // same situation: don't re-announce every poll
 
-    var tagValue = (talk.match_reason && talk.match_reason[0]) || (talk.topics && talk.topics[0]) || '';
+    var reason = (useAlt && alt.match_reason && alt.match_reason.length) ? alt.match_reason : talk.match_reason;
+    var tagValue = (reason && reason[0]) || (talk.topics && talk.topics[0]) || '';
     state.banner = {
-      kind: useAlt ? 'full' : 'noalt', key: key, index: i,
+      kind: useAlt ? 'full' : 'noalt', key: key, index: i, altId: useAlt ? alt.id : null,
       vars: {
         pct: KP.pct(occ), title: useAlt ? alt.title : '', room: useAlt && alt.room ? alt.room.name : '',
         tagValue: tagValue, alt: altOcc != null ? KP.pct(altOcc) : '—'
@@ -166,7 +181,7 @@
       actions.push(el('button', {
         type: 'button', className: 'btn btn--primary',
         'aria-label': t('pulso.obee.switch.label', { title: vars.title, room: vars.room }),
-        onclick: function () { switchTalk(b.index); }
+        onclick: function () { switchTalk(b.index, b.altId); }
       }, [t('pulso.obee.switch')]));
     }
     actions.push(el('button', {
@@ -184,11 +199,12 @@
     ]));
   }
 
-  function switchTalk(index) {
+  function switchTalk(index, altId) {
     var list = talks();
     var before = list[index];
-    if (!before || !before.parallel_alternative) return;
-    var after = KP.swapTalk(before);
+    if (!before || !altId) return;
+    var after = KP.pickParallel(before, altId);
+    if (after === before) return;
     list[index] = after;
     state.agenda.swaps = (state.agenda.swaps || 0) + 1;
     if (!state.agendaFromMock) KP.saveAgenda(state.agenda);
