@@ -1,0 +1,9 @@
+{
+  "rooms": [
+    { "id": "ace", "name": "Grand Ballroom ACE", "occupancy": 0.96, "capacity": 1200, "trend": "up" },
+    { "id": "gi", "name": "Grand Ballroom GI", "occupancy": 0.30, "capacity": 800, "trend": "flat" },
+    { "id": "r254", "name": "Room 254", "occupancy": 0.71, "capacity": 300, "trend": "up" },
+    { "id": "r255ef", "name": "Room 255 EF", "occupancy": 0.22, "capacity": 250, "trend": "down" }
+  ],
+  "updated_at": "2026-11-09T15:55:03-07:00"
+}
