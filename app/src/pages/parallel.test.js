@@ -71,6 +71,17 @@ test('legacy agenda without parallel_matches still swaps with parallel_alternati
   assert.equal(KP.pickParallel(old, 'nope'), old);
 });
 
+test('empty parallel_matches: a non-matching parallel_alternative can still be picked', () => {
+  const s = slot();
+  s.parallel_matches = [];
+  s.parallel_alternative = { id: 'x', title: 'X', room: room('r255ef') };
+  const after = KP.pickParallel(s, 'x');
+  assert.equal(after.id, 'x');
+  assert.equal(after.start, s.start);
+  assert.deepEqual(ids(after.parallel_matches), ['a'], 'the previous pick (which matches) becomes an option');
+  assert.equal(KP.swapTalk(s).id, 'x');
+});
+
 test('rankByOccupancy orders matches by live occupancy and marks the least crowded', () => {
   const occ = { ace: 0.96, gi: 0.6, r254: 0.2 };
   const ranked = KP.rankByOccupancy(slot(), (id) => (id in occ ? occ[id] : null));

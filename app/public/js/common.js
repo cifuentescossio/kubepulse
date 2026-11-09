@@ -265,6 +265,8 @@
   function pickParallel(talk, id) {
     var opts = parallelOptions(talk);
     var chosen = opts.filter(function (o) { return o.id === id; })[0];
+    // parallel_alternative may be a parallel talk that matches no interest (then it isn't in parallel_matches).
+    if (!chosen && talk && talk.parallel_alternative && talk.parallel_alternative.id === id) chosen = talk.parallel_alternative;
     if (!chosen) return talk;
     var prev = asOption(talk);
     var originalId = talk.original_id || talk.id;
@@ -286,12 +288,7 @@
   // Legacy: swap with `parallel_alternative`.
   function swapTalk(talk) {
     var alt = talk && talk.parallel_alternative;
-    if (!alt) return talk;
-    if (hasMatches(talk) && !parallelOptions(talk).some(function (o) { return o.id === alt.id; })) {
-      // The alternative isn't among the matches (it doesn't match any interest): swap it in anyway.
-      return pickParallel(Object.assign({}, talk, { parallel_matches: [alt].concat(talk.parallel_matches) }), alt.id);
-    }
-    return pickParallel(talk, alt.id);
+    return alt ? pickParallel(talk, alt.id) : talk;
   }
 
   // Options of a slot (recommended first, then its parallel matches) ranked by live occupancy.

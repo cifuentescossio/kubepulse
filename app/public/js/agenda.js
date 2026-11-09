@@ -132,7 +132,8 @@
   }
 
   function talkRow(talk, index) {
-    var multi = KP.hasMatches(talk);
+    // parallel_matches can be [] while parallel_alternative is a non-matching parallel: keep today's link for it.
+    var multi = KP.hasMatches(talk) && KP.parallelOptions(talk).length > 0;
     var ranked = KP.rankByOccupancy(talk, occOf);
     var isLeast = multi && ranked.leastId === talk.id;
 
@@ -213,11 +214,12 @@
 
     renderTimeline();
 
-    var withMatches = talks.filter(function (x) { return KP.hasMatches(x) && KP.parallelOptions(x).length; }).length;
-    var withAlt = talks.filter(function (x) { return !KP.hasMatches(x) && x.parallel_alternative; }).length;
+    function hasOptions(x) { return KP.hasMatches(x) && KP.parallelOptions(x).length > 0; }
+    var withMatches = talks.filter(hasOptions).length;
+    var withAlt = talks.filter(function (x) { return !hasOptions(x) && x.parallel_alternative; }).length;
     var count = t('agenda.summary.count', { n: talks.length });
     if (withMatches) count += ' ' + t('agenda.summary.matches', { n: withMatches });
-    else if (withAlt) count += ' ' + t('agenda.summary.parallel', { n: withAlt });
+    if (withAlt) count += ' ' + t('agenda.summary.parallel', { n: withAlt });
     countEl.textContent = count;
 
     var busy = talks.filter(function (x) { return x.forecast === 'high'; })[0];
@@ -262,7 +264,7 @@
   function snapshot() {
     var snap = {};
     upcoming().forEach(function (talk) {
-      if (!KP.hasMatches(talk)) return;
+      if (!KP.hasMatches(talk) || !KP.parallelOptions(talk).length) return;
       var occ = talk.room ? occOf(talk.room.id) : null;
       snap[talk.start] = { least: KP.rankByOccupancy(talk, occOf).leastId, recHigh: occ != null && occ >= 0.9 };
     });
