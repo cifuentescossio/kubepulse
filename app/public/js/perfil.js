@@ -77,15 +77,10 @@
     KP.saveProfile(profile);
     // The old agenda no longer matches the new interests.
     try { localStorage.removeItem(KP.KEYS.agenda); } catch (err) { /* ignore */ }
+    // Privacy: RUM (Dash0) gets only a non-personal count. Never role, interests,
+    // language or accessibility needs: the profile stays in localStorage.
     KP.track('profile_saved', {
-      'kubepulse.role': profile.role,
-      'kubepulse.interests': profile.interests.join(','),
-      'kubepulse.interests.count': profile.interests.length,
-      'kubepulse.level': profile.level,
-      'kubepulse.talk_lang': profile.lang,
-      'kubepulse.a11y.captions': profile.a11y.captions,
-      'kubepulse.a11y.wheelchair': profile.a11y.wheelchair,
-      'kubepulse.a11y.avoid_crowded': profile.a11y.avoid_crowded
+      'kubepulse.interests.count': profile.interests.length
     });
     formStatus.textContent = KP.t('perfil.saved');
     location.href = KP.withDemo('/agenda');

@@ -149,10 +149,8 @@
     state.agenda.talks[index] = after;
     state.swaps += 1;
     persist();
-    KP.track('recommendation_switched', {
-      'kubepulse.from_talk': before.id, 'kubepulse.to_talk': after.id,
-      'kubepulse.to_room': after.room && after.room.id, 'kubepulse.screen': 'agenda'
-    });
+    // Privacy: no talk ids or rooms (they reveal the person's interests).
+    KP.track('recommendation_switched', { 'kubepulse.screen': 'agenda' });
     state.notice = 'agenda.swapped';
     state.noticeVars = { title: after.title, room: after.room && after.room.name };
     render();

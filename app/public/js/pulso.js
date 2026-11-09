@@ -192,9 +192,9 @@
     list[index] = after;
     state.agenda.swaps = (state.agenda.swaps || 0) + 1;
     if (!state.agendaFromMock) KP.saveAgenda(state.agenda);
+    // Privacy: no talk ids or rooms (they reveal the person's interests); only how full the room was.
     KP.track('recommendation_switched', {
-      'kubepulse.from_talk': before.id, 'kubepulse.to_talk': after.id,
-      'kubepulse.to_room': after.room && after.room.id, 'kubepulse.screen': 'pulso',
+      'kubepulse.screen': 'pulso',
       'kubepulse.from_room.occupancy': occOf(before.room && before.room.id)
     });
     state.banner = {
@@ -318,7 +318,9 @@
     if (!state.pulse || state.pulseFromMock || !state.historyRoom) return;
     var occ = occOf(state.historyRoom);
     if (occ == null) return;
-    var tIso = state.pulse.updated_at || new Date().toISOString();
+    // Use the server's timestamp (ISO 8601 with -07:00). Never invent one in UTC.
+    var tIso = state.pulse.updated_at;
+    if (!tIso) return;
     var last = state.history[state.history.length - 1];
     if (state.historyFromMock) { state.history = []; state.historyFromMock = false; last = null; }
     if (last && new Date(tIso).getTime() <= new Date(last.t).getTime()) return;
