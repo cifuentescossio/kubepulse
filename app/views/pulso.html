@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Pulso en vivo · KubePulse{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ v }}">{% endblock %}
+
+{% block header_extra %}
+<ul class="header-tags" id="header-tags" aria-label="Tus intereses" data-i18n-attr="aria-label:pulso.tags" hidden></ul>
+<a class="header-btn" href="/perfil{% if demo %}?demo=1{% endif %}" data-i18n="pulso.edit">Editar perfil</a>
+{% endblock %}
+
+{% block content %}
+<h1 class="visually-hidden" data-i18n="pulso.title">Pulso en vivo</h1>
+{# Obee speaks here. The region exists empty from the start so screen readers announce changes. #}
+<div class="obee-region" id="obee-region" aria-live="polite" aria-atomic="true"></div>
+
+<div class="pulso-layout">
+  <section class="route" aria-labelledby="route-title">
+    <h2 id="route-title" data-i18n="pulso.route">Tu ruta de hoy</h2>
+    <p class="notice" id="route-notice" hidden></p>
+    <ol class="route-list" id="route-list"></ol>
+  </section>
+
+  <section class="card rooms-panel" aria-labelledby="rooms-title">
+    <div class="rooms-panel__head">
+      <h2 id="rooms-title" data-i18n="pulso.rooms">Pulso de las salas</h2>
+      <img class="rooms-panel__keddy" src="/static/mascots/keddy_full.svg" alt="Keddy vigila las salas" data-i18n-attr="alt:pulso.keddy" width="48" height="48">
+    </div>
+    <p class="freshness small" id="freshness" data-i18n="pulso.loading">Cargando el pulso…</p>
+    <ul class="room-grid" id="room-grid"></ul>
+
+    <figure class="chart">
+      <figcaption class="chart__title" id="chart-title"></figcaption>
+      <div class="chart__box" role="img" id="chart-box" aria-label="">
+        <canvas id="chart-canvas"></canvas>
+      </div>
+    </figure>
+    <p class="muted small sim-note" data-i18n="pulso.sim">Datos simulados vía OpenTelemetry · también en Dash0</p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+        integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script defer src="/static/js/pulso.js?v={{ v }}"></script>
+{% endblock %}
