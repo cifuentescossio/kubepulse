@@ -136,6 +136,10 @@ Evidence:
 *The check rule fires after `/chaos`; Agent0 explains the spike is injected by the chaos endpoint and that all 28
 `POST /recommend` requests in the window returned 200.*
 
+![Agent0 chat in Dash0 after creating the check rule "KubePulse · room full (>95%)" and the dashboard "KubePulse"](docs/screenshots/dash0-agent0-created.png)
+
+*Agent0 created and enabled the check rule and saved the dashboard from one chat.*
+
 <!-- screenshot: Dash0 dashboard "KubePulse" with occupancy per room -->
 <!-- screenshot: Dash0 traces for POST /recommend -->
 
@@ -157,7 +161,9 @@ What we used:
 
 Evidence:
 
-<!-- screenshot: /schedule with "Also matches your interests" and live occupancy pills -->
+![/schedule with "Also matches your interests" under each slot and occupancy pills per talk](docs/screenshots/app-schedule.png)
+
+*Captured without a saved profile, so the page shows the sample agenda; the layout is the same with Elastic results.*
 <!-- screenshot: response headers X-KubePulse-Source: elastic -->
 
 ### Gitar
@@ -183,7 +189,13 @@ What we used:
 
 Evidence:
 
-<!-- screenshot: Gitar comment on PR #7 analyzing the CI failure and pushing the fix -->
+![PR #7 timeline: "gitar auto-apply:on", Gitar's review on app/telemetry.js, its fix commit 5848b27 and the approval](docs/screenshots/gitar-auto-apply.png)
+
+*Gitar pushed `5848b27` on its own after `gitar auto-apply:on` and then approved the PR.*
+![Gitar review on PR #5 flagging substring topic matching in app/src/search/rank.js](docs/screenshots/gitar-review.png)
+
+*Gitar's bug finding on PR #5, resolved by the whole-word matching commit `78b34ac`.*
+
 <!-- screenshot: Gitar review on PR #6 with the RUM privacy finding -->
 
 ### AI agents (how it was built)
