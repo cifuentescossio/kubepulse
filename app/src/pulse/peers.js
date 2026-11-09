@@ -12,6 +12,7 @@ const PEERS_HOST = 'app-peers.team-kubepulse.svc.cluster.local';
 const PEERS_PORT = 8080; // containerPort `http` in deploy/deployment.yaml
 const FORWARDED_HEADER = 'X-KubePulse-Forwarded';
 const TIMEOUT_MS = 1000;
+const PEER_CACHE_MS = 5000;
 const NO_DNS = new Set(['ENOTFOUND', 'ENODATA', 'ESERVFAIL', 'ECONNREFUSED', 'ETIMEOUT', 'EREFUSED']);
 
 function localAddresses() {
@@ -37,6 +38,25 @@ function createPeerBroadcaster({
   log = (msg) => console.warn(msg),
 } = {}) {
   let dnsMissingLogged = false;
+  let cache = { at: 0, ips: null };
+
+  // Only pods behind app-peers may send X-KubePulse-Forwarded: the public URL reaches the same
+  // router, so the header alone proves nothing. Lookups are cached for a few seconds.
+  async function isPeer(remoteAddress) {
+    const ip = String(remoteAddress || '').replace(/^::ffff:/, '');
+    if (!ip) return false;
+    const t = Date.now();
+    const stale = !cache.ips || t - cache.at > PEER_CACHE_MS;
+    // An unknown IP may be a pod that just started: re-resolve, but at most once a second.
+    if (stale || (!cache.ips.has(ip) && t - cache.at > 1000)) {
+      try {
+        cache = { at: t, ips: new Set(await resolve(host)) };
+      } catch {
+        cache = { at: t, ips: new Set() };
+      }
+    }
+    return cache.ips.has(ip);
+  }
 
   // Resolves with one { ip, status | error } per peer; never rejects.
   async function broadcast(chaos) {
@@ -73,7 +93,7 @@ function createPeerBroadcaster({
     );
   }
 
-  return { broadcast };
+  return { broadcast, isPeer };
 }
 
 module.exports = { createPeerBroadcaster, FORWARDED_HEADER, PEERS_HOST, PEERS_PORT };

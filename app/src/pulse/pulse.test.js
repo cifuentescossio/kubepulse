@@ -35,6 +35,14 @@ const post = (base, body, headers = {}) =>
   });
 
 const quietLog = () => {};
+const CHAOS_MS = 3 * 60 * 1000;
+
+// A real broadcaster whose only peer is 127.0.0.1, which is also "itself", so it never forwards.
+const trusting = createPeerBroadcaster({
+  resolve: async () => ['127.0.0.1'],
+  selfAddresses: () => new Set(['127.0.0.1']),
+  log: quietLog,
+});
 
 let main; // the module's own router, as server.js mounts it
 
@@ -142,7 +150,7 @@ test('chaos on one pod is forwarded to its peers and both answer the same', asyn
   const simA = createSimulator({ rooms: FALLBACK_ROOMS, now });
   const simB = createSimulator({ rooms: FALLBACK_ROOMS, now });
   const podB = await listen(
-    makeApp(pulse.createPulseRouter({ simulator: simB, broadcaster: { broadcast: async () => [] }, log: quietLog })),
+    makeApp(pulse.createPulseRouter({ simulator: simB, broadcaster: trusting, log: quietLog })),
   );
   let forwarded;
   const real = createPeerBroadcaster({
@@ -151,7 +159,7 @@ test('chaos on one pod is forwarded to its peers and both answer the same', asyn
     port: podB.port,
     log: quietLog,
   });
-  const broadcaster = { broadcast: (c) => (forwarded = real.broadcast(c)) };
+  const broadcaster = { broadcast: (c) => (forwarded = real.broadcast(c)), isPeer: async () => false };
   const podA = await listen(makeApp(pulse.createPulseRouter({ simulator: simA, broadcaster, log: quietLog })));
   try {
     const res = await post(podA.base, { room: 'r254' });
@@ -202,7 +210,11 @@ test('forwarded chaos is validated and taken as is', async () => {
   let broadcasts = 0;
   const pod = await listen(
     makeApp(
-      pulse.createPulseRouter({ simulator: sim, broadcaster: { broadcast: async () => broadcasts++ }, log: quietLog }),
+      pulse.createPulseRouter({
+        simulator: sim,
+        broadcaster: { broadcast: async () => broadcasts++, isPeer: async () => true },
+        log: quietLog,
+      }),
     ),
   );
   const fwd = { 'X-KubePulse-Forwarded': '1' };
@@ -210,11 +222,14 @@ test('forwarded chaos is validated and taken as is', async () => {
     const bad = [
       {},
       { room: 'ace' },
-      { room: 'ace', start: 'yesterday', until: toSlcIso(T0 + 60_000) },
+      { room: 'ace', start: 'yesterday', until: toSlcIso(T0 + CHAOS_MS) },
       { room: 'ace', start: toSlcIso(T0), until: toSlcIso(T0 - 1000) },
-      { room: 'ace', start: toSlcIso(T0), until: toSlcIso(T0 + 10 * 60_000) }, // longer than 3 min
-      { room: 42, start: toSlcIso(T0), until: toSlcIso(T0 + 60_000) },
-      { room: 'nope', start: toSlcIso(T0), until: toSlcIso(T0 + 60_000) },
+      { room: 'ace', start: toSlcIso(T0), until: toSlcIso(T0 + 1000) }, // not 3 min long
+      { room: 'ace', start: toSlcIso(T0), until: toSlcIso(T0 + 10 * 60_000) },
+      { room: 'ace', start: toSlcIso(T0 - CHAOS_MS - 1000), until: toSlcIso(T0 - 1000) }, // already over
+      { room: 'ace', start: toSlcIso(T0 + 60_000), until: toSlcIso(T0 + 60_000 + CHAOS_MS) }, // future
+      { room: 42, start: toSlcIso(T0), until: toSlcIso(T0 + CHAOS_MS) },
+      { room: 'nope', start: toSlcIso(T0), until: toSlcIso(T0 + CHAOS_MS) },
     ];
     for (const body of bad) {
       const res = await post(pod.base, body, fwd);
@@ -228,9 +243,54 @@ test('forwarded chaos is validated and taken as is', async () => {
     assert.deepEqual(await res.json(), { room: 'gi', until });
     assert.equal(sim.getChaosState().remaining_ms, 140_000);
     assert.equal(broadcasts, 0, 'a forwarded chaos is not forwarded again');
+
+    // An active chaos is not replaced by a forwarded one that claims to have started earlier.
+    const earlier = await post(
+      pod.base,
+      { room: 'ace', start: toSlcIso(T0 - 60_000), until: toSlcIso(T0 - 60_000 + CHAOS_MS) },
+      fwd,
+    );
+    assert.equal(earlier.status, 409);
+    assert.equal(sim.getChaosState().room, 'gi');
   } finally {
     pod.server.close();
   }
+});
+
+test('the forwarded header from a non-peer is ignored and cannot bypass the 409', async () => {
+  process.env.DEMO_MODE = 'true';
+  const clock = T0;
+  const sim = createSimulator({ rooms: FALLBACK_ROOMS, now: () => clock });
+  const outsider = createPeerBroadcaster({ resolve: async () => ['10.0.0.5'], log: quietLog }); // 127.0.0.1 isn't a peer
+  const sent = [];
+  const broadcaster = { broadcast: async (c) => sent.push(c), isPeer: outsider.isPeer };
+  const pod = await listen(makeApp(pulse.createPulseRouter({ simulator: sim, broadcaster, log: quietLog })));
+  const fwd = { 'X-KubePulse-Forwarded': '1' };
+  try {
+    let res = await post(pod.base, { room: 'gi' });
+    assert.equal(res.status, 200);
+    // Same body a peer would send, but the window starts earlier: handled as a normal POST /chaos → 409.
+    res = await post(pod.base, { room: 'ace', start: toSlcIso(T0 - 1000), until: toSlcIso(T0 - 1000 + CHAOS_MS) }, fwd);
+    assert.equal(res.status, 409);
+    assert.equal(sim.getChaosState().room, 'gi');
+    assert.equal(sent.length, 1);
+  } finally {
+    pod.server.close();
+  }
+});
+
+test('chaos windows stay bounded', () => {
+  let clock = T0;
+  const sim = createSimulator({ rooms: FALLBACK_ROOMS, now: () => clock, historyMs: 24 * 3600_000 });
+  for (let i = 0; i < 100; i++) {
+    clock += CHAOS_MS + 5000;
+    const c = sim.triggerChaos('ace');
+    assert.equal(c.ok, true);
+    assert.equal(sim.applyChaos({ room: 'gi', start: c.start, until: c.until }).ok, false); // overlaps
+  }
+  // Only the last 16 windows are kept: at most 16 × 36 chaos ticks in a 24 h history.
+  const high = sim.history('ace').points.filter((p) => p.occupancy >= 0.96).length;
+  assert.ok(high <= 16 * 37, `got ${high}`);
 });
 
 test('two pods that start chaos at once converge on the same one', () => {
@@ -253,7 +313,7 @@ test('two pods that start chaos at once converge on the same one', () => {
 test('POST /chaos responds without waiting for peers, and alone when DNS does not resolve', async () => {
   process.env.DEMO_MODE = 'true';
   const sim = createSimulator({ rooms: FALLBACK_ROOMS });
-  const hang = { broadcast: () => new Promise(() => {}) };
+  const hang = { broadcast: () => new Promise(() => {}), isPeer: async () => false };
   const pod = await listen(makeApp(pulse.createPulseRouter({ simulator: sim, broadcaster: hang, log: quietLog })));
   try {
     const t0 = Date.now();

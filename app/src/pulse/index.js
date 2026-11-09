@@ -33,7 +33,7 @@ function createPulseRouter({ simulator, broadcaster, log = (msg) => console.warn
     res.set('Cache-Control', 'no-store').json(body);
   });
 
-  router.post('/chaos', (req, res, next) => {
+  router.post('/chaos', async (req, res, next) => {
     if (!demoMode()) return next(); // falls through to the app's 404
     const body = req.body && typeof req.body === 'object' ? req.body : {};
     const requested = body.room;
@@ -41,7 +41,18 @@ function createPulseRouter({ simulator, broadcaster, log = (msg) => console.warn
       return res.status(400).json({ error: 'room must be a string' });
     }
 
+    // The public URL reaches this router too, so the header only counts from a pod behind app-peers.
+    // From anyone else it is ignored and the request is handled as a normal POST /chaos.
+    let fromPeer = false;
     if (req.get(FORWARDED_HEADER) === '1') {
+      try {
+        fromPeer = await broadcaster.isPeer(req.socket.remoteAddress);
+      } catch {
+        fromPeer = false;
+      }
+    }
+
+    if (fromPeer) {
       // From a peer: take its window as is and don't forward again.
       const result = simulator.applyChaos({ room: requested, start: body.start, until: body.until });
       if (result.ok) return res.json({ room: result.room, until: result.until });

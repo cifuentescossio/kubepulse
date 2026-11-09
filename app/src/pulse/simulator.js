@@ -18,6 +18,8 @@ const TREND_THRESHOLD = 0.004; // per tick; above the per-tick jitter (Â±0.002 â
 const NOISE_KNOT_TICKS = 12; // smooth noise gets a new random knot every minute
 const NOISE_AMPLITUDE = 0.06;
 const JITTER_AMPLITUDE = 0.002;
+const MAX_WINDOWS = 16;
+const RACE_MS = 2000; // two chaos starts this close together count as a race between pods
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const round3 = (v) => Math.round(v * 1000) / 1000;
@@ -152,6 +154,8 @@ function createSimulator(opts) {
 
   function prune(ms) {
     windows = windows.filter((w) => w.until > ms - historyMs - tickMs);
+    // Normal use adds at most one window per 3 min (10 in 30 min); keep a hard cap anyway.
+    if (windows.length > MAX_WINDOWS) windows = windows.slice(-MAX_WINDOWS);
   }
 
   function activeWindow(ms) {
@@ -226,8 +230,9 @@ function createSimulator(opts) {
       const s = typeof start === 'string' ? Date.parse(start) : NaN;
       const u = typeof until === 'string' ? Date.parse(until) : NaN;
       const badRoom = typeof room !== 'string' || !room;
-      const badTimes = !Number.isFinite(s) || !Number.isFinite(u) || u <= s || u - s > chaosMs;
-      if (badRoom || badTimes || s > ms + 60_000) {
+      // Exactly one chaos length, still running, and not starting in the future.
+      const badTimes = !Number.isFinite(s) || !Number.isFinite(u) || u - s !== chaosMs || u <= ms;
+      if (badRoom || badTimes || s > ms + 5000) {
         return { ok: false, reason: 'invalid' };
       }
       if (!byId.has(room)) return { ok: false, reason: 'unknown_room' };
@@ -236,13 +241,15 @@ function createSimulator(opts) {
       if (windows.some((x) => x.roomId === w.roomId && x.start === w.start && x.until === w.until)) {
         return { ok: true, room, until: toSlcIso(u) }; // already have it
       }
-      // Windows that overlap this one compete; keep only the deterministic winner.
+      // Windows that overlap this one compete; keep only the deterministic winner. Replacing an
+      // active window is only for a real race (both started within RACE_MS); otherwise first wins.
       const rivals = windows.filter((x) => x.start < w.until && x.until > w.start);
-      const loser = rivals.find((x) => wins(x, w));
+      const loser = rivals.find((x) => wins(x, w) || Math.abs(x.start - w.start) > RACE_MS);
       if (loser) return { ok: false, reason: 'busy', room: loser.roomId, until: toSlcIso(loser.until) };
       windows = windows.filter((x) => !rivals.includes(x));
       windows.push(w);
       windows.sort((a, b) => a.start - b.start);
+      prune(ms);
       return { ok: true, room, until: toSlcIso(u) };
     },
 
