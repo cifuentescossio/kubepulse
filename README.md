@@ -89,6 +89,9 @@ context. If `LLM_PROVIDER` is `none`, or the provider fails or takes longer than
 listing the best local matches, with `provider: "none"`, `degraded: true` and the headers
 `X-KubePulse-Source: local` and `X-KubePulse-Degraded: true`. The question itself is never logged.
 
+Privacy: when `LLM_PROVIDER` is `openai` or `elastic`, the question, the profile's interests and the selected talks
+are sent to that provider to generate the answer. Nothing leaves the app with `LLM_PROVIDER=none`.
+
 ## Run locally
 
 Requires Node 22 or later.
