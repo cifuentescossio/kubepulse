@@ -55,10 +55,18 @@ Response:
     "room": { "id": "ace", "name": "Grand Ballroom ACE" },
     "topics": ["MCP", "Agentes"], "match_reason": ["MCP", "Agentes"],
     "parallel_alternative": { "id": "t-0920-gi", "title": "...", "room": { "id": "gi", "name": "Grand Ballroom GI" } },
+    "parallel_matches": [{ "id": "t-0920-gi", "title": "...", "speakers": ["..."],
+      "start": "2026-11-09T09:20:00-07:00", "end": "2026-11-09T09:45:00-07:00",
+      "room": { "id": "gi", "name": "Grand Ballroom GI" },
+      "topics": ["Agentes"], "match_reason": ["Agentes"], "forecast": "low|mid|high" }],
     "forecast": "low|mid|high" }],
   "breaks": [{ "start": "2026-11-09T10:25:00-07:00", "label": "coffee|lunch" }] }
 ```
-`parallel_alternative` puede ser `null`.
+`parallel_alternative` puede ser `null` (se mantiene por compatibilidad: es el primer elemento de `parallel_matches`, o el mejor
+paralelo aunque no coincida si no hay ninguno).
+`parallel_matches`: **todas** las demás charlas que se solapan en horario con la recomendada y coinciden con al menos un interés
+(`match_reason` no vacío), ordenadas por puntaje descendente, máx. 4. Siempre presente (`[]` si no hay). Mismo filtro de perfil que la
+recomendada (nivel, idioma, accesibilidad). La ocupación en vivo de cada sala no viene aquí: el frontend la cruza por `room.id` con `GET /pulse`.
 
 ### GET /search?q=texto
 Response: `{ "talks": [ ...mismo formato de charla... ] }`
