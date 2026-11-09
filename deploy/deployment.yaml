@@ -16,15 +16,45 @@ spec:
       labels:
         app: app
     spec:
+      # The app never calls the Kubernetes API, so don't mount a token.
+      automountServiceAccountToken: false
+      # Spread replicas across nodes when there are several. ScheduleAnyway, not
+      # DoNotSchedule: this cluster has a single node, and the second pod must
+      # still schedule there.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: app
+      volumes:
+        # The root filesystem is read-only; /tmp stays writable for Node or a
+        # library that needs scratch space.
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
       containers:
         - name: app
           image: app
           ports:
             - name: http
               containerPort: 8080
+          # Credentials and endpoints (Elastic, Dash0/OTLP, LLM) live in Secret
+          # kubepulse-secrets, created outside git. Optional, so the pod still
+          # starts (with telemetry and integrations off) before it exists.
+          envFrom:
+            - secretRef:
+                name: kubepulse-secrets
+                optional: true
           env:
             - name: TEAM_NAME
               value: "kubepulse"
+            - name: DEMO_MODE
+              value: "true"
+            # Room occupancy is a live gauge: export metrics every 15s, not every 60s.
+            - name: OTEL_METRIC_EXPORT_INTERVAL
+              value: "15000"
           resources:
             requests:
               cpu: 100m
@@ -42,9 +72,13 @@ spec:
               path: /healthz
               port: http
             periodSeconds: 10
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:

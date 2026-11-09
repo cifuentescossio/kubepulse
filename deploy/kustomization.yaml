@@ -8,7 +8,8 @@ resources:
   - deployment.yaml
   - service.yaml
   - httproute.yaml
+  - pdb.yaml
 images:
   - name: app
-    newName: ghcr.io/OWNER/REPO
-    newTag: latest
+    newName: ghcr.io/cifuentescossio/kubepulse
+    newTag: 3d54149
