@@ -11,6 +11,18 @@ It turns the schedule into a personal plan and tells you, live, which rooms are 
 | [`/schedule`](https://kubepulse.cnh.radarhq.io/schedule) | Recommended talks per time slot, why each one matches, a parallel alternative, and a crowd forecast. |
 | [`/live`](https://kubepulse.cnh.radarhq.io/live) | Live room occupancy (Room available / Filling up / Full) with the last 30 minutes of history. |
 
+![/profile form: name, role, 2 to 5 interests, level, language and accessibility options](docs/screenshots/app-profile.png)
+
+*`/profile`: interests, level, language and accessibility needs, stored only in the browser.*
+
+![/schedule: recommended talk per slot with its reason, other matching talks and occupancy pills](docs/screenshots/app-schedule.png)
+
+*`/schedule`: one talk per slot, why it matches, and the other talks that also match.*
+
+![/live: today's route with the next talk, and the room pulse with occupancy per room and ACE's last 30 minutes](docs/screenshots/app-live.png)
+
+*`/live`: the route with the next talk, and occupancy per room. Captured without a saved profile, so the route is the sample agenda.*
+
 Room occupancy is **simulated**: there are no sensors in the rooms. See [AI usage declaration](#ai-usage-declaration).
 
 ## Architecture
@@ -83,6 +95,162 @@ listing the best local matches, with `provider: "none"`, `degraded: true` and th
 
 Privacy: when `LLM_PROVIDER` is `openai` or `elastic`, the question, the profile's interests and the selected talks
 are sent to that provider to generate the answer. Nothing leaves the app with `LLM_PROVIDER=none`.
+
+## How we used each track
+
+The day's full timeline, with times, is in [`STORY.md`](STORY.md).
+
+### Radar
+
+Radar Cloud is how we operate the team's Kubernetes cluster: every deploy, check and investigation went through it.
+
+What we used:
+
+- **GitOps with Argo CD through `manage_gitops`**: `refresh` and `sync` of the Application `app`, then `wait_for`
+  on the rollout and `/version` to confirm the live build. Git stays the source of truth (see [Deploy](#deploy)).
+- **`diagnose`** caught a real platform failure at 12:37-07:00: the Application had a `ComparisonError` and the
+  pre-installed `argocd-repo-server` was in CrashLoopBackOff.
+- **AI SRE investigation** on `argocd/argocd-repo-server`: the liveness probe kills it when a health check takes
+  1.6 s or 2.4 s against `timeoutSeconds: 1` (13 restarts). We didn't touch the pre-installed component; we deployed
+  in its healthy windows and took the evidence to the Radar team.
+- **Checks 4 → 0** in `team-kubepulse` with one commit (`0795b53`, [PR #4](https://github.com/cifuentescossio/kubepulse/pull/4)):
+  no service account token, read-only root filesystem with an `emptyDir` on `/tmp`, PDB `app` with `minAvailable: 1`,
+  and `topologySpreadConstraints` with `ScheduleAnyway`. Cluster view: 369/416 → 374/417 passing.
+- **Secret `kubepulse-secrets`** (8 keys) created from the Radar UI, outside git, then a restart with
+  `manage_workload`. No value is in the repo.
+
+Evidence:
+
+Checks before and after commit `0795b53`: `team-kubepulse` went from 4 Medium findings to 0; cluster-wide, 14 → 12
+checks, 44 → 40 actionable resources and 369/416 → 374/417 passing.
+
+![Radar Checks for the kubepulse cluster: 12 checks, 40 actionable, 378 of 421 passing, with the namespace filter open](docs/screenshots/radar-checks-after.png)
+
+*Checks after the fix: `team-kubepulse` has no open findings, so the namespace filter lists only the pre-installed platform namespaces.*
+
+![Radar timeline filtered to repo-server: problem events on the argocd Application and on argocd-repo-server between 12:43 PM and 6:07 PM](docs/screenshots/radar-repo-server-crashloop.png)
+
+*The platform's Argo CD repo-server crash loop as Radar's timeline shows it across the afternoon.*
+
+<!-- screenshot: Argo CD Application app Synced/Healthy in Radar -->
+
+### Dash0
+
+Dash0 is KubePulse's observability backend: the occupancy the user sees is the same metric Dash0 alerts on.
+
+What we used:
+
+- **OpenTelemetry SDK** (`app/telemetry.js`): traces, logs and metrics over OTLP, plus browser RUM events. Probes
+  are ignored; RUM events carry no interests or accessibility data (fixed in [PR #6](https://github.com/cifuentescossio/kubepulse/pull/6)).
+- **Gauge `room.occupancy`**: read from the same function that serves `GET /pulse`, so Dash0 and `/live` agree.
+- **Dashboard and check rule "KubePulse · room full (>95%)"** created with Agent0. Queries and panels are in
+  [`docs/dash0.md`](docs/dash0.md).
+- **Alert fired with `POST /chaos`** (a room at 96% or more for 3 minutes) and resolved on its own when the chaos
+  window ended.
+- **Agent0 investigation** of the alert: it traced the spike to the chaos endpoint and found no impact on
+  `POST /recommend`.
+
+Evidence:
+
+![Dash0 failed check "Grand Ballroom GI is over 95% full" with the Agent0 investigation panel open](docs/screenshots/dash0-agent0-investigation.png)
+
+*The check rule fires after `/chaos`; Agent0 explains the spike is injected by the chaos endpoint and that all 28
+`POST /recommend` requests in the window returned 200.*
+
+![Agent0 chat in Dash0 after creating the check rule "KubePulse · room full (>95%)" and the dashboard "KubePulse"](docs/screenshots/dash0-agent0-created.png)
+
+*Agent0 created and enabled the check rule and saved the dashboard from one chat.*
+
+![Dash0 dashboard "KubePulse": panel "Room occupancy by room" with one line per room and a dashed 90% line](docs/screenshots/dash0-dashboard.png)
+
+*Room occupancy per room; Grand Ballroom GI jumps above 90% when `/chaos` runs.*
+
+![Dash0 service overview for kubepulse: 107 requests, 0.93% errors, 69.9 ms average, and the dependency map to Elastic](docs/screenshots/dash0-service.png)
+
+*The `kubepulse` service in Dash0, built from the app's traces, including its outgoing calls to Elastic.*
+
+### Elastic
+
+Elastic is the main data layer: it ranks the talk catalog for `/recommend` and `/search` (index `talks`).
+
+What we used:
+
+- **`semantic_text`** field with the `.jina-embeddings-v5-text-small` inference endpoint (multilingual: an interest
+  written in Spanish finds talks in English).
+- **BM25** on title, abstract and speakers, plus exact topic terms.
+- **RRF** (`retriever.rrf`) merges the keyword and semantic results into one list.
+- **Profile filters inside the query**: level, live captions and wheelchair-accessible rooms.
+- **Local fallback** when Elastic is unset, fails or takes longer than 1.5 s, marked with `X-KubePulse-Source` and
+  `X-KubePulse-Degraded`.
+- **`parallel_matches`**: every overlapping talk that also matches your interests, built from the same single query
+  ([PR #11](https://github.com/cifuentescossio/kubepulse/pull/11), UI in [PR #12](https://github.com/cifuentescossio/kubepulse/pull/12)).
+
+Evidence:
+
+![/schedule with "Also matches your interests" under each slot and occupancy pills per talk](docs/screenshots/app-schedule.png)
+
+*Captured without a saved profile, so the page shows the sample agenda; the layout is the same with Elastic results.*
+
+![Elastic Discover with 26 results: talk documents with abstract, captions, level, room_id and the semantic field](docs/screenshots/elastic-discover.png)
+
+*The 26 talk documents in Elastic, each with its `semantic` field.*
+
+<!-- screenshot: response headers X-KubePulse-Source: elastic -->
+
+### Gitar
+
+Gitar reviewed every pull request before it reached `main`.
+
+What we used:
+
+- **Reviews on all PRs**, with instructions in `.gitar/review/instructions.md`.
+- **3 custom rules** in `.gitar/rules/`: `contract-owners`, `no-secrets` and `timezone-iso` (described in
+  [Architecture](#architecture)).
+- **Real bugs it found**:
+  - Topic matching by substring (`for` matched "Platform Engineering", `sec` and `gen` matched unrelated words);
+    fixed with whole-word matching ([PR #5](https://github.com/cifuentescossio/kubepulse/pull/5)).
+  - RUM events sent role, interests and accessibility data to analytics; now `profile_saved` sends only a count
+    ([PR #6](https://github.com/cifuentescossio/kubepulse/pull/6)).
+  - Anyone could spoof the chaos forwarding header from the public URL
+    ([PR #8](https://github.com/cifuentescossio/kubepulse/pull/8)).
+  - 2 bugs in parallel matches when `parallel_matches` is empty
+    ([PR #12](https://github.com/cifuentescossio/kubepulse/pull/12)).
+- **Auto-apply** (`gitar auto-apply:on`) fixed the failing CI on [PR #7](https://github.com/cifuentescossio/kubepulse/pull/7)
+  by itself: a time-zone test, fixed in `5848b27`; CI was green about 3 minutes later.
+
+Evidence:
+
+![PR #7 timeline: "gitar auto-apply:on", Gitar's review on app/telemetry.js, its fix commit 5848b27 and the approval](docs/screenshots/gitar-auto-apply.png)
+
+*Gitar pushed `5848b27` on its own after `gitar auto-apply:on` and then approved the PR.*
+
+![Gitar review on PR #5 flagging substring topic matching in app/src/search/rank.js](docs/screenshots/gitar-review.png)
+
+*Gitar's bug finding on PR #5, resolved by the whole-word matching commit `78b34ac`.*
+
+<!-- screenshot: Gitar review on PR #6 with the RUM privacy finding -->
+
+### AI agents (how it was built)
+
+KubePulse was built by AI coding agents working in parallel, coordinated by one agent and reviewed by the person on
+the team (see [AI usage declaration](#ai-usage-declaration)).
+
+What we used:
+
+- **One agent per module** (A · Infra, B · Data, C · Pulse, D · Frontend, E · Extras), each in its own git worktree
+  and branch, limited to its own folders.
+- **A contract first**: [`docs/contracts.md`](docs/contracts.md) defines the API and folder owners; only the
+  coordinating agent changes it.
+- **Everything through PRs**: no agent pushes to `main`; Gitar and the person review, the coordinator merges and
+  deploys.
+- **Follow-up agents** for later work: `parallel_matches` ([PR #11](https://github.com/cifuentescossio/kubepulse/pull/11),
+  [PR #12](https://github.com/cifuentescossio/kubepulse/pull/12)) and the English repo
+  ([PR #13](https://github.com/cifuentescossio/kubepulse/pull/13)).
+- **Radar's MCP server** for cluster work, passing the cluster id on every call.
+
+Evidence:
+
+<!-- screenshot: several agent sessions running in parallel, one per worktree -->
 
 ## Run locally
 
