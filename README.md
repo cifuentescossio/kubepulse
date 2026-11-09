@@ -1,13 +1,5 @@
 # KubePulse
 
-> **Resumen en español.** KubePulse es un copiloto para asistentes de KubeCon + CloudNativeCon North America 2026
-> (Salt Lake City). Armas tu perfil (rol, intereses, idioma, accesibilidad), recibes una agenda personalizada con una
-> alternativa en paralelo para cada charla, y ves en vivo qué tan llena está cada sala para no quedarte afuera.
-> También puedes hacer preguntas en lenguaje natural sobre la agenda (`POST /ask`). La búsqueda es híbrida en Elastic
-> (con respaldo local), la observabilidad va por OpenTelemetry a Dash0, el despliegue es GitOps con Argo CD y se opera
-> con Radar, y cada PR lo revisa Gitar. Los datos de ocupación son **simulados**. Demo:
-> <https://kubepulse.cnh.radarhq.io>.
-
 KubePulse is a conference copilot built at the Cloud Native Hackathon (KubeCon + CloudNativeCon North America 2026).
 It turns the schedule into a personal plan and tells you, live, which rooms are filling up.
 

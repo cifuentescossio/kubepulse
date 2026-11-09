@@ -1,65 +1,65 @@
-# KubePulse en Dash0: dashboard, SLO y alerta
+# KubePulse in Dash0: dashboard, SLO and alert
 
-Esto lo crea una persona en la UI de Dash0. Ningún agente tiene acceso a Dash0.
-Todas las consultas son PromQL y usan los nombres reales que exporta la app (ver "Qué exporta la app").
+A person creates all of this in the Dash0 UI. No agent has access to Dash0.
+Every query is PromQL and uses the real names the app exports (see "What the app exports").
 
-## Qué exporta la app
+## What the app exports
 
-Revisado en `app/telemetry.js`, `app/src/pulse/otel.js` y las versiones instaladas en `app/package-lock.json`.
-Todo sale por OTLP con `service.name=kubepulse` (y `service.version=<sha>` si existe `APP_VERSION`).
+Checked in `app/telemetry.js`, `app/src/pulse/otel.js` and the versions installed in `app/package-lock.json`.
+Everything goes out over OTLP with `service.name=kubepulse` (and `service.version=<sha>` when `APP_VERSION` is set).
 
-| Señal | Nombre OTel | Tipo | Atributos útiles | Origen |
+| Signal | OTel name | Type | Useful attributes | Source |
 |---|---|---|---|---|
-| Ocupación de sala | `room.occupancy` | gauge, unidad `1` (0-1) | `room.id`, `room.name`, `room.capacity` | `app/src/pulse/otel.js` |
-| Latencia y volumen HTTP | `http.server.request.duration` | histograma, segundos | `http.request.method`, `http.route`, `http.response.status_code` | `@opentelemetry/instrumentation-http` 0.301 (semconv estable; ya no emite `http.server.duration`) |
-| Heap de V8 | `v8js.memory.heap.used` | gauge, bytes | `v8js.heap.space.name` | `instrumentation-runtime-node` |
+| Room occupancy | `room.occupancy` | gauge, unit `1` (0-1) | `room.id`, `room.name`, `room.capacity` | `app/src/pulse/otel.js` |
+| HTTP latency and volume | `http.server.request.duration` | histogram, seconds | `http.request.method`, `http.route`, `http.response.status_code` | `@opentelemetry/instrumentation-http` 0.301 (stable semconv; no longer emits `http.server.duration`) |
+| V8 heap | `v8js.memory.heap.used` | gauge, bytes | `v8js.heap.space.name` | `instrumentation-runtime-node` |
 | Event loop | `nodejs.eventloop.delay.p99`, `nodejs.eventloop.utilization` | gauge | | `instrumentation-runtime-node` |
-| Trazas | spans `POST /recommend`, `GET /search`, `POST /ask`, ... | | mismos atributos HTTP | instrumentación HTTP + Express |
+| Traces | spans `POST /recommend`, `GET /search`, `POST /ask`, ... | | same HTTP attributes | HTTP + Express instrumentation |
 
-Notas que cambian los paneles:
+Notes that change the panels:
 
-- **Las sondas no aparecen.** `telemetry.js` ignora `/healthz` y `/readyz` (`ignoreIncomingRequestHook`), así que no hay span ni
-  medición para ellas. Todo `http.server.request.duration` ya es tráfico "no-probe".
-- **`X-KubePulse-Degraded` no existe hoy.** Ni el encabezado ni un atributo de span lo emite ningún archivo de `app/`. `/ask`
-  devuelve `degraded` en el cuerpo JSON (contrato), que no llega a la telemetría. El panel de "% degradado" queda pendiente: hace
-  falta que E · Extras (o B · Datos) ponga en el span activo un atributo, p. ej. `kubepulse.degraded=true`, o que A · Infra
-  capture el encabezado de respuesta con `headersToSpanAttributes.server.responseHeaders` en `telemetry.js`. Abajo va la
-  consulta lista para cuando exista.
-- **No hay RSS del proceso.** `process.memory.usage` viene de `instrumentation-host-metrics`, que
-  `auto-instrumentations-node` deja apagada por defecto. Para tener RSS, A · Infra debe activarla en `telemetry.js`
-  (`'@opentelemetry/instrumentation-host-metrics': { enabled: true }`). Mientras tanto, el panel usa el heap de V8.
-- **Hoy `/recommend`, `/search` y `/ask` responden 501** (stubs en `main`). Cuentan como 5xx: el SLO de disponibilidad saldrá
-  rojo hasta que B y E unan sus rutas. Es esperado.
+- **Probes don't show up.** `telemetry.js` ignores `/healthz` and `/readyz` (`ignoreIncomingRequestHook`), so there is no span or
+  measurement for them. All of `http.server.request.duration` is already "no-probe" traffic.
+- **`X-KubePulse-Degraded` doesn't exist today.** No file in `app/` emits it, neither as the header nor as a span attribute. `/ask`
+  returns `degraded` in the JSON body (contract), which doesn't reach telemetry. The "% degraded" panel is pending: E · Extras
+  (or B · Data) needs to set an attribute on the active span, e.g. `kubepulse.degraded=true`, or A · Infra needs to
+  capture the response header with `headersToSpanAttributes.server.responseHeaders` in `telemetry.js`. The query below is
+  ready for when it exists.
+- **There is no process RSS.** `process.memory.usage` comes from `instrumentation-host-metrics`, which
+  `auto-instrumentations-node` leaves off by default. To get RSS, A · Infra must enable it in `telemetry.js`
+  (`'@opentelemetry/instrumentation-host-metrics': { enabled: true }`). Until then, the panel uses the V8 heap.
+- **Today `/recommend`, `/search` and `/ask` answer 501** (stubs on `main`). They count as 5xx: the availability SLO will be
+  red until B and E merge their routes. This is expected.
 
-### Cómo escribir los nombres en Dash0
+### How to write the names in Dash0
 
-Dash0 recomienda el selector `otel_metric_name` y, en etiquetas, cambia puntos por guiones bajos
+Dash0 recommends the `otel_metric_name` selector and, in labels, replaces dots with underscores
 (`room.name` → `room_name`, `service.name` → `service_name`, `http.route` → `http_route`).
-Para histogramas también expone el nombre traducido a Prometheus (`http_server_request_duration_seconds_bucket`, `_count`,
-`_sum`). Confirma el nombre exacto con el autocompletado del Query Builder antes de guardar; si `_bucket` no aparece, usa la
-variante de histograma nativo indicada en cada panel.
+For histograms it also exposes the name translated to Prometheus (`http_server_request_duration_seconds_bucket`, `_count`,
+`_sum`). Confirm the exact name with the Query Builder's autocomplete before saving; if `_bucket` doesn't show up, use the
+native histogram variant given for each panel.
 
-Abreviaturas usadas abajo:
+Shorthand used below:
 
 ```promql
-# Peticiones HTTP de KubePulse (ya sin sondas)
+# KubePulse HTTP requests (already without probes)
 {otel_metric_name="http.server.request.duration", service_name="kubepulse"}
 ```
 
 ## Dashboard "KubePulse"
 
-Crear en **Dashboards > New dashboard**, nombre `KubePulse`. Variables: ninguna. Usa `$__rate_interval` en todo `rate()`.
+Create it in **Dashboards > New dashboard**, name `KubePulse`. Variables: none. Use `$__rate_interval` in every `rate()`.
 
-### 1. Ocupación por sala (línea, umbral 0.9)
+### 1. Occupancy per room (line, threshold 0.9)
 
 ```promql
 max by (room_name) ({otel_metric_name="room.occupancy", service_name="kubepulse"})
 ```
 
-Tipo: línea. Eje Y de 0 a 1, unidad porcentaje (0-1). Umbral fijo en `0.9` (rojo) = estado "Llena" del contrato.
-Leyenda: `{{room_name}}`. Se usa `max` porque con varias réplicas cada pod reporta la misma sala.
+Type: line. Y axis from 0 to 1, unit percent (0-1). Fixed threshold at `0.9` (red) = the contract's "Full" state.
+Legend: `{{room_name}}`. `max` is used because with several replicas each pod reports the same room.
 
-### 2. Tasa de peticiones por ruta
+### 2. Request rate per route
 
 ```promql
 sum by (http_route, http_request_method) (
@@ -68,9 +68,9 @@ sum by (http_route, http_request_method) (
 )
 ```
 
-Tipo: línea, unidad req/s. Leyenda: `{{http_request_method}} {{http_route}}`.
+Type: line, unit req/s. Legend: `{{http_request_method}} {{http_route}}`.
 
-### 3. Latencia p95 por ruta
+### 3. p95 latency per route
 
 ```promql
 histogram_quantile(0.95,
@@ -81,7 +81,7 @@ histogram_quantile(0.95,
 )
 ```
 
-Variante si Dash0 lo expone como histograma nativo:
+Variant if Dash0 exposes it as a native histogram:
 
 ```promql
 histogram_quantile(0.95,
@@ -92,13 +92,13 @@ histogram_quantile(0.95,
 )
 ```
 
-Tipo: línea, unidad segundos. Umbral en `1.5` para alinear con el SLO de latencia. Con `POST /chaos` activo la latencia de
-`/recommend` y `/search` sube entre 0.4 y 1.5 s (`chaosLatency`), y se ve aquí.
+Type: line, unit seconds. Threshold at `1.5` to line up with the latency SLO. With `POST /chaos` active, the latency of
+`/recommend` and `/search` rises by 0.4 to 1.5 s (`chaosLatency`), and it shows up here.
 
-Alternativa sin métricas: pestaña **Tracing** del Query Builder, filtro `service.name = kubepulse` y
-`http.route in (/recommend, /search, /ask)`, agrupar por `http.route`, mostrar tasa y p95. Usa los mismos spans.
+Alternative without metrics: the Query Builder's **Tracing** tab, filter `service.name = kubepulse` and
+`http.route in (/recommend, /search, /ask)`, group by `http.route`, show rate and p95. It uses the same spans.
 
-### 4. Errores 5xx
+### 4. 5xx errors
 
 ```promql
 sum by (http_route) (
@@ -107,93 +107,93 @@ sum by (http_route) (
 )
 ```
 
-Tipo: barras apiladas, unidad req/s. Recordatorio: hoy los stubs devuelven 501.
+Type: stacked bars, unit req/s. Reminder: today the stubs return 501.
 
-### 5. % de respuestas degradadas (pendiente)
+### 5. % of degraded responses (pending)
 
-No hay datos hasta que exista el atributo (ver notas). Cuando `kubepulse.degraded` esté en los spans, crear el panel desde la
-pestaña **Tracing**: spans de `service.name = kubepulse` y `http.route = /ask`, fórmula
-`count(kubepulse.degraded = true) / count(*)`, en %. Si en su lugar se captura el encabezado, el atributo será
+No data until the attribute exists (see notes). Once `kubepulse.degraded` is on the spans, create the panel from the
+**Tracing** tab: spans with `service.name = kubepulse` and `http.route = /ask`, formula
+`count(kubepulse.degraded = true) / count(*)`, in %. If the header is captured instead, the attribute will be
 `http.response.header.x-kubepulse-degraded`.
 
-### 6. Memoria del proceso
+### 6. Process memory
 
-Hoy (heap de V8, suma de todos los espacios, por pod):
+Today (V8 heap, sum of all spaces, per pod):
 
 ```promql
 sum by (k8s_pod_name) ({otel_metric_name="v8js.memory.heap.used", service_name="kubepulse"})
 ```
 
-Cuando se active `instrumentation-host-metrics` (RSS real):
+Once `instrumentation-host-metrics` is enabled (real RSS):
 
 ```promql
 max by (k8s_pod_name) ({otel_metric_name="process.memory.usage", service_name="kubepulse"})
 ```
 
-Tipo: línea, unidad bytes. Umbral en 512 MiB (límite por defecto del contenedor en el cluster). Si `k8s_pod_name` no aparece
-(la app no añade atributos de Kubernetes al recurso), agrupar por `service_instance_id`.
+Type: line, unit bytes. Threshold at 512 MiB (the cluster's default container limit). If `k8s_pod_name` doesn't show up
+(the app doesn't add Kubernetes attributes to the resource), group by `service_instance_id`.
 
 ## SLOs
 
-Crear en **SLOs > New SLO**, servicio `kubepulse`. Ventana: 1 hora (es una demo de un día; en producción serían 28 días).
+Create them in **SLOs > New SLO**, service `kubepulse`. Window: 1 hour (this is a one-day demo; in production it would be 28 days).
 
-### Disponibilidad 99 % (peticiones HTTP no-probe)
+### Availability 99 % (no-probe HTTP requests)
 
-- Objetivo: 99 %. Ventana: 1 h.
-- Eventos buenos / totales:
+- Target: 99 %. Window: 1 h.
+- Good / total events:
 
 ```promql
-# buenos: todo lo que no es 5xx
+# good: everything that is not 5xx
 sum(rate(http_server_request_duration_seconds_count{service_name="kubepulse",
     http_response_status_code!~"^5"}[$__rate_interval]))
-# totales
+# total
 sum(rate(http_server_request_duration_seconds_count{service_name="kubepulse"}[$__rate_interval]))
 ```
 
-No hace falta excluir `/healthz` ni `/readyz`: la app no las mide.
+There's no need to exclude `/healthz` or `/readyz`: the app doesn't measure them.
 
-### Latencia p95 < 1.5 s en `/recommend`
+### p95 latency < 1.5 s on `/recommend`
 
-- Objetivo: 95 % de las peticiones a `POST /recommend` en menos de 1.5 s, ventana 1 h (equivale a p95 < 1.5 s).
-- Eventos buenos / totales. La instrumentación usa los buckets que recomienda la semconv
-  (`… 0.5, 0.75, 1, 2.5, 5 …` s), así que no hay bucket de 1.5 s. Primero intenta el histograma nativo (umbral exacto); si no está, usa `le="2.5"` como aproximación
-  conservadora y anótalo en la demo:
+- Target: 95 % of `POST /recommend` requests in under 1.5 s, window 1 h (equivalent to p95 < 1.5 s).
+- Good / total events. The instrumentation uses the buckets the semconv recommends
+  (`… 0.5, 0.75, 1, 2.5, 5 …` s), so there is no 1.5 s bucket. Try the native histogram first (exact threshold); if it isn't there, use `le="2.5"` as a conservative
+  approximation and note it in the demo:
 
 ```promql
-# buenos (histograma clásico)
+# good (classic histogram)
 sum(rate(http_server_request_duration_seconds_bucket{service_name="kubepulse",
     http_route="/recommend", http_request_method="POST", le="2.5"}[$__rate_interval]))
-# totales
+# total
 sum(rate(http_server_request_duration_seconds_count{service_name="kubepulse",
     http_route="/recommend", http_request_method="POST"}[$__rate_interval]))
 ```
 
 ```promql
-# buenos (histograma nativo, umbral exacto 1.5 s)
+# good (native histogram, exact 1.5 s threshold)
 histogram_fraction(0, 1.5,
   sum(rate({otel_metric_name="http.server.request.duration", service_name="kubepulse",
             http_route="/recommend", http_request_method="POST"}[$__rate_interval])))
 ```
 
-Para un umbral exacto con histograma clásico, A · Infra puede añadir una `View` con buckets que incluyan `1.5` en
+For an exact threshold with a classic histogram, A · Infra can add a `View` with buckets that include `1.5` in
 `telemetry.js`.
 
-## Alerta: sala por encima de 95 %
+## Alert: room above 95 %
 
-Crear en **Alerting > Check rules > New** (o **Create check rule** desde el Query Builder).
+Create it in **Alerting > Check rules > New** (or **Create check rule** from the Query Builder).
 
-- Nombre: `KubePulse · sala llena (>95 %)`.
-- Consulta:
+- Name: `KubePulse · room full (>95 %)`.
+- Query:
 
 ```promql
 max by (room_name) ({otel_metric_name="room.occupancy", service_name="kubepulse"}) > 0.95
 ```
 
-- Para: `1m`. Evaluar cada `30s`.
-- Severidad: warning. Resumen: `{{ $labels.room_name }} al {{ $value | humanizePercentage }}`.
-- Descripción: "La ocupación supera el 95 % desde hace 1 minuto. Sugerir a los asistentes la charla paralela."
+- For: `1m`. Evaluate every `30s`.
+- Severity: warning. Summary: `{{ $labels.room_name }} at {{ $value | humanizePercentage }}`.
+- Description: "Occupancy has been above 95 % for 1 minute. Suggest the parallel talk to attendees."
 
-Cómo dispararla en la demo: con `DEMO_MODE=true`, `POST /chaos` con `{ "room": "ace" }` pone esa sala al ≥96 % durante
-3 minutos (contrato). La alerta pasa a pending enseguida y dispara al minuto. Abre la alerta y pide a **Agent0** que la
-investigue: debería correlacionar la subida de `room.occupancy` con la latencia extra de `/recommend` en las trazas.
-Un segundo `POST /chaos` mientras dura devuelve 409, no la alarga.
+How to fire it in the demo: with `DEMO_MODE=true`, `POST /chaos` with `{ "room": "ace" }` puts that room at ≥96 % for
+3 minutes (contract). The alert goes to pending right away and fires after a minute. Open the alert and ask **Agent0** to
+investigate it: it should correlate the rise in `room.occupancy` with the extra latency of `/recommend` in the traces.
+A second `POST /chaos` while it lasts returns 409; it doesn't extend it.

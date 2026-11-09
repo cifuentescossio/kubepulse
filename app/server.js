@@ -23,9 +23,9 @@ app.get('/version', (_req, res) => res.json({ version, started_at: startedAt }))
 
 app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: '5m' }));
 
-app.use(require('./src/pages'));   // D · Frontend: /, /perfil, /agenda, /pulso
-app.use(require('./src/search'));  // B · Datos: /recommend, /search
-app.use(require('./src/pulse'));   // C · Pulso: /pulse, /pulse/history, /chaos
+app.use(require('./src/pages'));   // D · Frontend: /, /profile, /schedule, /live (old /perfil, /agenda, /pulso redirect)
+app.use(require('./src/search'));  // B · Data: /recommend, /search
+app.use(require('./src/pulse'));   // C · Pulse: /pulse, /pulse/history, /chaos
 app.use(require('./src/ask'));     // E · Extras: /ask
 
 app.use((_req, res) => res.status(404).type('text/plain').send('not found\n'));

@@ -1,4 +1,4 @@
-// Owner: C · Pulso. GET /pulse, GET /pulse/history, POST /chaos (see docs/contracts.md).
+// Owner: C · Pulse. GET /pulse, GET /pulse/history, POST /chaos (see docs/contracts.md).
 //
 // Occupancy is deterministic (simulator.js), so every replica answers the same. A chaos started on
 // one pod is forwarded to the others (peers.js) with X-KubePulse-Forwarded: 1.

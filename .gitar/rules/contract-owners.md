@@ -5,13 +5,13 @@ when: "A pull request is opened or updated and changes docs/contracts.md, or cha
 actions: "Post a pull request comment that lists which owner areas the pull request touches, flags any response field that no longer matches docs/contracts.md, and reminds that only the coordinator changes docs/contracts.md and that changes to app/package.json must only add required dependencies"
 ---
 
-## Cuándo aplica
-Cuando un PR cambia `docs/contracts.md` o mezcla carpetas de varios módulos.
+## When it applies
+When a PR changes `docs/contracts.md` or mixes folders from several modules.
 
-## Cómo funciona
-Compara las carpetas tocadas con la tabla de dueños de `docs/contracts.md` y revisa que los
-formatos de las respuestas sigan el contrato.
+## How it works
+It compares the touched folders with the owners table in `docs/contracts.md` and checks that the
+response formats follow the contract.
 
-## Por qué importa
-Varios agentes trabajan en paralelo, cada uno en su módulo. Si uno cambia un formato por su cuenta,
-el frontend se rompe sin que nadie lo note hasta la demo.
+## Why it matters
+Several agents work in parallel, each one in its own module. If one changes a format on its own,
+the frontend breaks without anyone noticing until the demo.

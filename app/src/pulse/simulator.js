@@ -1,4 +1,4 @@
-// Owner: C · Pulso. Deterministic room-occupancy simulator.
+// Owner: C · Pulse. Deterministic room-occupancy simulator.
 //
 // occupancy(room, t) is a pure function of the room id and the 5-second tick floor(t / 5 s):
 // a time-of-day curve, a surge at the start of each talk slot, and noise from a PRNG seeded by

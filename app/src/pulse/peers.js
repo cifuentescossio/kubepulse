@@ -1,4 +1,4 @@
-// Owner: C · Pulso. Shares a new chaos with the other replicas.
+// Owner: C · Pulse. Shares a new chaos with the other replicas.
 //
 // The pod that receives POST /chaos (without X-KubePulse-Forwarded) forwards the same
 // { room, start, until } to every other pod behind the headless Service `app-peers`, with

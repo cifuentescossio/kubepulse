@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Tu perfil · KubePulse{% endblock %}
+{% block title %}Your profile · KubePulse{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ v }}">{% endblock %}
 
 {% block header_extra %}
-<p class="header-step" data-i18n="perfil.step">Paso 1 de 3 · Tu perfil</p>
+<p class="header-step" data-i18n="perfil.step">Step 1 of 3 · Your profile</p>
 {% endblock %}
 
 {% block content %}
@@ -12,22 +12,22 @@
 <div class="perfil-layout">
   <section class="card welcome" aria-labelledby="welcome-title">
     <div class="welcome__mascot">
-      <img src="/static/mascots/phippy_full.svg" alt="Phippy, la jirafa, te da la bienvenida" data-i18n-attr="alt:perfil.phippy" width="130" height="150">
+      <img src="/static/mascots/phippy_full.svg" alt="Phippy the giraffe welcomes you" data-i18n-attr="alt:perfil.phippy" width="130" height="150">
     </div>
-    <h1 id="welcome-title" data-i18n="perfil.hello">¡Hola! Cuéntanos de ti</h1>
-    <p class="welcome__intro" data-i18n="perfil.intro">Con esto armamos tu agenda de KubeCon y te avisamos cuando una sala se llena.</p>
-    <p class="welcome__privacy small" data-i18n="perfil.privacy">No rastreamos tu ubicación. Tu perfil se guarda solo en tu navegador; lo enviamos a nuestro servidor únicamente para armar tu agenda y nunca a analítica.</p>
+    <h1 id="welcome-title" data-i18n="perfil.hello">Hi! Tell us about you</h1>
+    <p class="welcome__intro" data-i18n="perfil.intro">We use this to build your KubeCon agenda and to let you know when a room fills up.</p>
+    <p class="welcome__privacy small" data-i18n="perfil.privacy">We don't track your location. Your profile is stored only in your browser; we send it to our server only to build your agenda, and never to analytics.</p>
   </section>
 
   <form class="card profile-form" id="profile-form" novalidate aria-labelledby="welcome-title">
     <div class="form-grid">
       <div class="field">
-        <label for="name" data-i18n="perfil.name">¿Cómo te llamas?</label>
+        <label for="name" data-i18n="perfil.name">What's your name?</label>
         <input id="name" name="name" type="text" autocomplete="given-name" maxlength="60"
-               placeholder="Tu nombre" data-i18n-attr="placeholder:perfil.name.placeholder">
+               placeholder="Your name" data-i18n-attr="placeholder:perfil.name.placeholder">
       </div>
       <div class="field">
-        <label for="role" data-i18n="perfil.role">Tu rol</label>
+        <label for="role" data-i18n="perfil.role">Your role</label>
         <select id="role" name="role">
           {% for r in roles %}<option value="{{ r }}" data-i18n="perfil.role.{{ r }}">{{ r }}</option>{% endfor %}
         </select>
@@ -35,7 +35,7 @@
     </div>
 
     <fieldset class="chips-field" aria-describedby="interests-status">
-      <legend data-i18n="perfil.interests">¿Qué te gusta? Elige 2 a 5</legend>
+      <legend data-i18n="perfil.interests">What are you into? Pick 2 to 5</legend>
       <div class="chips">
         {% for i in interests %}
         <label class="chip">
@@ -50,15 +50,15 @@
 
     <div class="form-grid">
       <div class="field">
-        <label for="level" data-i18n="perfil.level">Nivel</label>
+        <label for="level" data-i18n="perfil.level">Level</label>
         <select id="level" name="level">
-          <option value="any" data-i18n="perfil.level.any">Cualquier nivel</option>
-          <option value="beginner" data-i18n="perfil.level.beginner">Principiante</option>
-          <option value="advanced" data-i18n="perfil.level.advanced">Avanzado</option>
+          <option value="any" data-i18n="perfil.level.any">Any level</option>
+          <option value="beginner" data-i18n="perfil.level.beginner">Beginner</option>
+          <option value="advanced" data-i18n="perfil.level.advanced">Advanced</option>
         </select>
       </div>
       <div class="field">
-        <label for="talk-lang" data-i18n="perfil.lang">Idioma preferido</label>
+        <label for="talk-lang" data-i18n="perfil.lang">Preferred language</label>
         <select id="talk-lang" name="lang">
           <option value="es" lang="es">Español</option>
           <option value="en" lang="en">English</option>
@@ -67,15 +67,15 @@
     </div>
 
     <fieldset class="a11y-box">
-      <legend data-i18n="perfil.a11y">Accesibilidad</legend>
-      <label class="check"><input type="checkbox" name="captions"> <span data-i18n="perfil.a11y.captions">Prefiero charlas con subtítulos en vivo</span></label>
-      <label class="check"><input type="checkbox" name="wheelchair"> <span data-i18n="perfil.a11y.wheelchair">Necesito salas accesibles en silla de ruedas</span></label>
-      <label class="check"><input type="checkbox" name="avoid_crowded"> <span data-i18n="perfil.a11y.avoid">Evitar salas muy llenas (sensibilidad sensorial)</span></label>
+      <legend data-i18n="perfil.a11y">Accessibility</legend>
+      <label class="check"><input type="checkbox" name="captions"> <span data-i18n="perfil.a11y.captions">I prefer talks with live captions</span></label>
+      <label class="check"><input type="checkbox" name="wheelchair"> <span data-i18n="perfil.a11y.wheelchair">I need wheelchair-accessible rooms</span></label>
+      <label class="check"><input type="checkbox" name="avoid_crowded"> <span data-i18n="perfil.a11y.avoid">Avoid very crowded rooms (sensory sensitivity)</span></label>
     </fieldset>
 
     <div class="form-actions">
-      <a class="btn btn--secondary" href="/schedule{% if demo %}?demo=1{% endif %}" id="skip" data-i18n="perfil.skip">Saltar</a>
-      <button type="submit" class="btn btn--primary" data-i18n="perfil.submit">Armar mi agenda →</button>
+      <a class="btn btn--secondary" href="/schedule{% if demo %}?demo=1{% endif %}" id="skip" data-i18n="perfil.skip">Skip</a>
+      <button type="submit" class="btn btn--primary" data-i18n="perfil.submit">Build my agenda →</button>
     </div>
     <p class="visually-hidden" role="status" id="form-status"></p>
   </form>

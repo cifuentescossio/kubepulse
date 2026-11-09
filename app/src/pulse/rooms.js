@@ -1,5 +1,5 @@
-// Owner: C · Pulso. Rooms and talk-slot schedule for the occupancy simulator.
-// Reads app/data/rooms.json (B · Datos) when present; otherwise falls back to the
+// Owner: C · Pulse. Rooms and talk-slot schedule for the occupancy simulator.
+// Reads app/data/rooms.json (B · Data) when present; otherwise falls back to the
 // rooms listed in docs/contracts.md so /pulse works before the data lands.
 const fs = require('node:fs');
 const path = require('node:path');

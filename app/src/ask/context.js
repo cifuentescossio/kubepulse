@@ -1,5 +1,5 @@
 // Owner: E · Extras. Picks the talks that give the LLM its context (simple RAG).
-// Uses B · Datos' local ranking from src/search/rank.js when it exists (require only, never modified),
+// Uses B · Data's local ranking from src/search/rank.js when it exists (require only, never modified),
 // and a small keyword ranking of its own otherwise, so /ask works before B's module is merged.
 const MAX_CONTEXT_TALKS = 8;
 

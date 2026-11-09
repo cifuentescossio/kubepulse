@@ -1,38 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Tu agenda propuesta · KubePulse{% endblock %}
+{% block title %}Your proposed agenda · KubePulse{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ v }}">{% endblock %}
 
 {% block header_extra %}
-<p class="header-step" data-i18n="agenda.step">Paso 2 de 3 · Tu agenda propuesta</p>
+<p class="header-step" data-i18n="agenda.step">Step 2 of 3 · Your proposed agenda</p>
 {% endblock %}
 
 {% block content %}
 <div class="agenda-layout">
   <section class="agenda-main" aria-labelledby="agenda-title" aria-busy="true" id="agenda-main">
-    <h1 id="agenda-title" data-i18n="agenda.heading.anon">Esta es tu ruta para hoy</h1>
+    <h1 id="agenda-title" data-i18n="agenda.heading.anon">Here is your route for today</h1>
     <p class="agenda-subtitle muted" id="agenda-subtitle"></p>
-    <p class="notice" id="agenda-notice" role="status"><span data-i18n="agenda.loading">Armando tu agenda…</span></p>
+    <p class="notice" id="agenda-notice" role="status"><span data-i18n="agenda.loading">Building your agenda…</span></p>
     {# Announces only relevant occupancy changes (a new least crowded option, a room that just filled up). #}
     <p class="visually-hidden" id="occ-live" aria-live="polite" aria-atomic="true"></p>
-    <h2 class="visually-hidden" data-i18n="agenda.timeline">Charlas propuestas</h2>
+    <h2 class="visually-hidden" data-i18n="agenda.timeline">Proposed talks</h2>
     <ol class="timeline" id="timeline"></ol>
   </section>
 
   <aside class="agenda-side" aria-labelledby="summary-title">
     <section class="card summary">
-      <h2 id="summary-title" data-i18n="agenda.summary">Resumen</h2>
-      <ul class="tag-list" id="summary-tags" aria-label="Tus intereses" data-i18n-attr="aria-label:agenda.summary.tags"></ul>
+      <h2 id="summary-title" data-i18n="agenda.summary">Summary</h2>
+      <ul class="tag-list" id="summary-tags" aria-label="Your interests" data-i18n-attr="aria-label:agenda.summary.tags"></ul>
       <p id="summary-count"></p>
-      <p class="muted small" data-i18n="agenda.summary.forecast">El pronóstico de ocupación es simulado y se actualiza en vivo en el paso 3.</p>
+      <p class="muted small" data-i18n="agenda.summary.forecast">The occupancy forecast is simulated and updates live in step 3.</p>
     </section>
 
     <div class="obee-note">
       <img src="/static/mascots/obee_full.svg" alt="Obee" data-i18n-attr="alt:obee.alt" width="44" height="44">
-      <p id="obee-agenda" data-i18n="agenda.obee.none">Si alguna sala se llena, te aviso y te propongo otra que encaje.</p>
+      <p id="obee-agenda" data-i18n="agenda.obee.none">If a room fills up, I'll let you know and suggest another talk that fits.</p>
     </div>
 
-    <button type="button" class="btn btn--primary btn--block" id="confirm" data-i18n="agenda.confirm">Confirmar y ver el pulso →</button>
-    <a class="btn btn--secondary btn--block" href="/profile{% if demo %}?demo=1{% endif %}" data-i18n="agenda.edit">← Editar intereses</a>
+    <button type="button" class="btn btn--primary btn--block" id="confirm" data-i18n="agenda.confirm">Confirm and see the pulse →</button>
+    <a class="btn btn--secondary btn--block" href="/profile{% if demo %}?demo=1{% endif %}" data-i18n="agenda.edit">← Edit interests</a>
   </aside>
 </div>
 {% endblock %}

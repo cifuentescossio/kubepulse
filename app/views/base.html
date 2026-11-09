@@ -47,7 +47,7 @@
   {% block head %}{% endblock %}
 </head>
 <body data-page="{{ page }}" data-title-key="{{ page }}.title">
-  <a class="skip-link" href="#main" data-i18n="a11y.skip">Saltar al contenido</a>
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -61,15 +61,15 @@
 
         <div class="theme-picker" data-theme-picker>
           <button type="button" class="header-btn theme-picker__toggle" aria-expanded="false" aria-controls="theme-panel" data-theme-toggle>
-            <span><span data-i18n="theme.button">Tema</span>: <span data-theme-current>Kube</span></span>
+            <span><span data-i18n="theme.button">Theme</span>: <span data-theme-current>Kube</span></span>
             <span aria-hidden="true">▾</span>
           </button>
           <div class="theme-picker__panel" id="theme-panel" hidden>
             <fieldset>
-              <legend class="theme-picker__legend" data-i18n="theme.choose">Elige un tema</legend>
+              <legend class="theme-picker__legend" data-i18n="theme.choose">Choose a theme</legend>
               {% set themes = [
-                ['kube', 'Kube'], ['dark', 'Oscuro'], ['mujeres', 'Mujeres en Cloud Native'],
-                ['daltonismo', 'Daltonismo'], ['lectura', 'Lectura fácil'], ['pride', 'Pride']
+                ['kube', 'Kube'], ['dark', 'Dark'], ['mujeres', 'Women in Cloud Native'],
+                ['daltonismo', 'Color-blind friendly'], ['lectura', 'Easy reading'], ['pride', 'Pride']
               ] %}
               {% for t in themes %}
               <label class="theme-option">
@@ -80,7 +80,7 @@
               </label>
               {% endfor %}
             </fieldset>
-            <p class="theme-picker__note" data-i18n="theme.note">Se guarda en tu navegador. Funciona con cualquier idioma.</p>
+            <p class="theme-picker__note" data-i18n="theme.note">Saved in your browser. Works with any language.</p>
           </div>
         </div>
 
@@ -105,7 +105,7 @@
 
   <footer class="site-footer">
     <p>
-      <span data-i18n="footer.mascots">Personajes de Phippy &amp; Friends</span> ·
+      <span data-i18n="footer.mascots">Phippy &amp; Friends characters</span> ·
       <a href="https://phippy.io">phippy.io</a> (CC-BY)
     </p>
   </footer>

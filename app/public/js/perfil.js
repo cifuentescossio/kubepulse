@@ -1,4 +1,4 @@
-/* /perfil · Paso 1 de 3. Profile lives only in localStorage `kubepulse.profile`. */
+/* /profile · Step 1 of 3. Profile lives only in localStorage `kubepulse.profile`. */
 (function () {
   'use strict';
   var KP = window.KP;
