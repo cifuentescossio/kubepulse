@@ -1,21 +1,19 @@
 <!doctype html>
-<html lang="es" data-theme="kube">
+<html lang="en" data-theme="kube">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}KubePulse{% endblock %}</title>
-  <meta name="description" content="KubePulse: tu copiloto de KubeCon con la ocupación de salas en vivo.">
+  <meta name="description" content="KubePulse: your KubeCon copilot with live room occupancy.">
   <script>
     // Apply saved theme and language before first paint (no flash of the wrong theme).
     (function () {
       var d = document.documentElement, theme = null, lang = null;
       try { theme = localStorage.getItem('kubepulse.theme'); lang = localStorage.getItem('kubepulse.lang'); } catch (e) {}
       var themes = ['kube', 'dark', 'mujeres', 'daltonismo', 'lectura', 'pride'];
-      if (themes.indexOf(theme) === -1) {
-        theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'kube';
-      }
+      if (themes.indexOf(theme) === -1) theme = 'kube';
       d.setAttribute('data-theme', theme);
-      if (lang === 'es' || lang === 'en') d.setAttribute('lang', lang);
+      if (['en', 'zh', 'hi', 'es', 'fr'].indexOf(lang) !== -1) d.setAttribute('lang', lang);
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,7 +51,7 @@
 
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="/perfil{% if demo %}?demo=1{% endif %}">
+      <a class="brand" href="/profile{% if demo %}?demo=1{% endif %}">
         <img class="brand__mascot" src="/static/mascots/obee_full.svg" alt="" width="46" height="46">
         <span class="brand__name">KubePulse</span>
       </a>
@@ -86,10 +84,16 @@
           </div>
         </div>
 
-        <div class="lang-switch" role="group" aria-label="Idioma" data-i18n-attr="aria-label:lang.group">
-          <button type="button" class="lang-switch__btn" data-lang="es" aria-pressed="true" lang="es" aria-label="Español">ES</button>
-          <button type="button" class="lang-switch__btn" data-lang="en" aria-pressed="false" lang="en" aria-label="English">EN</button>
-        </div>
+        <label class="lang-select">
+          <span class="visually-hidden" data-i18n="lang.group">Language</span>
+          <select class="header-btn lang-select__control" data-lang-select>
+            <option value="en" lang="en">English</option>
+            <option value="zh" lang="zh">中文</option>
+            <option value="hi" lang="hi">हिन्दी</option>
+            <option value="es" lang="es">Español</option>
+            <option value="fr" lang="fr">Français</option>
+          </select>
+        </label>
       </div>
     </div>
     <div class="header-stripe" aria-hidden="true"></div>

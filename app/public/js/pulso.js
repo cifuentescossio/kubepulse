@@ -82,7 +82,7 @@
       routeNotice.hidden = false;
       routeNotice.textContent = '';
       routeNotice.appendChild(document.createTextNode(t('pulso.noroute') + ' '));
-      routeNotice.appendChild(el('a', { href: KP.withDemo('/perfil'), text: t('pulso.build') }));
+      routeNotice.appendChild(el('a', { href: KP.withDemo('/profile'), text: t('pulso.build') }));
     } else {
       routeNotice.hidden = true;
     }

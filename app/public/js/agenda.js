@@ -166,7 +166,7 @@
       'kubepulse.swaps': state.swaps,
       'kubepulse.agenda.source': state.source
     });
-    location.href = KP.withDemo('/pulso');
+    location.href = KP.withDemo('/live');
   });
 
   document.addEventListener('kp:lang', render);
